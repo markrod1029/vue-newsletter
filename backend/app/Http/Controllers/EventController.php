@@ -40,6 +40,7 @@ class EventController extends Controller
             ->where('start_at', '>', now());
 
         // Limit
+        dd($query);
         $limit = $request->has('limit') ? $request->limit : 10;
 
         $events = $query->orderBy('start_at', 'asc')->paginate($limit);

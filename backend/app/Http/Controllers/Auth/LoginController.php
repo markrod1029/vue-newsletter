@@ -9,50 +9,42 @@ use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
-    public function login(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+public function login(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
 
-        $credentials = $request->only('email', 'password');
+    $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
 
-            // Check if user is approved
-            if ($user->status !== 'approved') {
-                Auth::logout();
-                return response()->json([
-                    'message' => 'Your account is pending approval. Please wait for admin approval.'
-                ], 403);
-            }
-
-            // Check if email is verified
-            // if (!$user->hasVerifiedEmail()) {
-            //     Auth::logout();
-            //     return response()->json([
-            //         'message' => 'Please verify your email address before logging in.'
-            //     ], 403);
-            // }
-
-            // Create token
-            $token = $user->createToken('auth_token')->plainTextToken;
-
+        // Check if user is approved
+        if ($user->status !== 'approved') {
+            Auth::logout();
             return response()->json([
-                'message' => 'Login successful',
-                'user' => $user->load('roles'),
-                'token' => $token
-            ]);
+                'message' => 'Your account is pending approval. Please wait for admin approval.'
+            ], 403);
         }
+
+        // Create Sanctum token (IMPORTANTE ITO!)
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Invalid credentials'
-        ], 401);
+            'message' => 'Login successful',
+            'user' => $user->load('roles'),
+            'token' => $token  // DAPAT MAY TOKEN
+        ]);
     }
+
+    return response()->json([
+        'message' => 'Invalid credentials'
+    ], 401);
+}
 }

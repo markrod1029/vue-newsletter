@@ -11,8 +11,29 @@ use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-    public function dashboard()
+    // public function dashboard()
+    // {
+    //     $stats = [
+    //         'pendingStudents' => User::where('status', 'pending')
+    //             ->whereHas('roles', function ($query) {
+    //                 $query->where('name', 'student');
+    //             })
+    //             ->count(),
+    //         'pendingPosts' => Post::where('status', 'pending')->count(),
+    //         'pendingEvents' => Event::where('status', 'pending')->count(),
+    //         'totalUsers' => User::count()
+    //     ];
+
+    //     return response()->json($stats);
+    // }
+
+    public function dashboard(Request $request)
     {
+        // Check using policy
+        if (!$request->user()->can('accessAdminPanel')) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
         $stats = [
             'pendingStudents' => User::where('status', 'pending')
                 ->whereHas('roles', function ($query) {

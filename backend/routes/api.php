@@ -18,12 +18,11 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['message' => 'CSRF cookie set']);
 });
-
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return $request->user()->load('roles');
     });
 
     // Posts
@@ -43,7 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('comments', CommentController::class);
 
     // Admin routes
-    Route::prefix('admin')->middleware('role:admin')->group(function () {
+    Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/pending-students', [AdminController::class, 'pendingStudents']);
         Route::post('/approve-student/{user}', [AdminController::class, 'approveStudent']);
