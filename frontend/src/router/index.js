@@ -1,0 +1,141 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+
+// Import components
+import Login from '../components/auth/Login.vue'
+import Register from '../components/auth/Register.vue'
+import Home from '../views/Home.vue'
+import Feed from '../views/Feed.vue'
+import Forums from '../views/Forums.vue'
+import ForumThread from '../views/ForumThread.vue'
+import Events from '../views/Events.vue'
+import AdminDashboard from '../components/admin/Dashboard.vue'
+import PendingStudents from '../components/admin/PendingStudents.vue'
+import PendingContent from '../components/admin/PendingContent.vue'
+import StudentDashboard from '../components/student/Dashboard.vue'
+import PostCreate from '../components/student/PostCreate.vue'
+
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register,
+    meta: { requiresGuest: true }
+  },
+  {
+    path: '/feed',
+    name: 'Feed',
+    component: Feed,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/forums',
+    name: 'Forums',
+    component: Forums,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/forums/:id',
+    name: 'ForumThread',
+    component: ForumThread,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/events',
+    name: 'Events',
+    component: Events,
+    meta: { requiresAuth: true }
+  },
+  // Admin routes
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/students',
+    name: 'PendingStudents',
+    component: PendingStudents,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin/content',
+    name: 'PendingContent',
+    component: PendingContent,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  // Student routes
+  {
+    path: '/student',
+    name: 'StudentDashboard',
+    component: StudentDashboard,
+    meta: { requiresAuth: true, requiresStudent: true }
+  },
+  {
+    path: '/student/post/create',
+    name: 'PostCreate',
+    component: PostCreate,
+    meta: { requiresAuth: true, requiresStudent: true }
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // Fetch user if not already loaded
+  if (!authStore.user && localStorage.getItem('authenticated')) {
+    await authStore.fetchUser()
+  }
+  
+  // Check if route requires authentication
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/login')
+    return
+  }
+  
+  // Check if route requires guest (non-authenticated)
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    next('/')
+    return
+  }
+  
+  // Check admin permissions
+  if (to.meta.requiresAdmin && authStore.user) {
+    const isAdmin = authStore.user.roles.some(role => role.name === 'admin')
+    if (!isAdmin) {
+      next('/')
+      return
+    }
+  }
+  
+  // Check student permissions
+  if (to.meta.requiresStudent && authStore.user) {
+    const isStudent = authStore.user.roles.some(role => role.name === 'student')
+    if (!isStudent) {
+      next('/')
+      return
+    }
+  }
+  
+  next()
+})
+
+export default router
