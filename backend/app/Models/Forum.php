@@ -2,9 +2,106 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Forum extends Model
 {
-    //
+    use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'title',
+        'description',
+        'slug',
+        'is_locked',
+        'created_by'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'is_locked' => 'boolean',
+    ];
+
+    /**
+     * Get the user who created the forum.
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Get the threads for the forum.
+     */
+    public function threads()
+    {
+        return $this->hasMany(Thread::class);
+    }
+
+    /**
+     * Get all comments for the forum through threads.
+     */
+    public function comments()
+    {
+        return $this->hasManyThrough(Comment::class, Thread::class);
+    }
+
+    /**
+     * Scope a query to only include unlocked forums.
+     */
+    public function scopeUnlocked($query)
+    {
+        return $query->where('is_locked', false);
+    }
+
+    /**
+     * Scope a query to only include locked forums.
+     */
+    public function scopeLocked($query)
+    {
+        return $query->where('is_locked', true);
+    }
+
+    /**
+     * Get the number of threads in the forum.
+     */
+    public function getThreadsCountAttribute()
+    {
+        return $this->threads()->count();
+    }
+
+    /**
+     * Get the number of comments in the forum.
+     */
+    public function getCommentsCountAttribute()
+    {
+        return $this->comments()->count();
+    }
+
+    /**
+     * Check if the forum can be accessed by a user.
+     */
+    public function canAccess(User $user = null)
+    {
+        // If forum is not locked, anyone can access
+        if (!$this->is_locked) {
+            return true;
+        }
+
+        // If forum is locked, only admins can access
+        if ($user && $user->hasRole('admin')) {
+            return true;
+        }
+
+        return false;
+    }
 }

@@ -55,4 +55,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function forums()
+    {
+        return $this->hasMany(Forum::class, 'created_by');
+    }
+    public function approvals()
+    {
+        return $this->hasMany(Approval::class, 'decided_by');
+    }
 }
