@@ -2,7 +2,7 @@
   <div id="app">
     <Navbar v-if="isAuthenticated" />
     <div class="app-container">
-      <Sidebar v-if="isAuthenticated" />
+      <!-- <Sidebar v-if="isAuthenticated" /> -->
       <main class="main-content">
         <router-view />
       </main>
@@ -12,14 +12,14 @@
 
 <script>
 import Navbar from './components/common/Navbar.vue'
-import Sidebar from './components/common/Sidebar.vue'
+// import Sidebar from './components/common/Sidebar.vue'
 import { useAuthStore } from './stores/auth'
 
 export default {
   name: 'App',
   components: {
     Navbar,
-    Sidebar
+    // Sidebar
   },
   computed: {
     isAuthenticated() {

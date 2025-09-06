@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import apiClient from '../api/http'
 
 export default {
   name: 'Home',
@@ -108,7 +108,7 @@ export default {
     async fetchRecentPosts() {
       this.loading = true
       try {
-        const response = await axios.get('/api/feed?limit=5')
+        const response = await apiClient.get('/api/feed?limit=5')
         this.recentPosts = response.data.data
       } catch (error) {
         console.error('Error fetching recent posts:', error)
@@ -124,7 +124,7 @@ export default {
     async fetchUpcomingEvents() {
       this.loading = true
       try {
-        const response = await axios.get('/api/events/upcoming?limit=5')
+        const response = await apiClient.get('/api/events/upcoming?limit=5')
         this.upcomingEvents = response.data.data
       } catch (error) {
         console.error('Error fetching upcoming events:', error)

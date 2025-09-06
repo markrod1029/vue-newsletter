@@ -100,8 +100,8 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Fetch user if not already loaded
-  if (!authStore.user && localStorage.getItem('authenticated')) {
+  // If auth is not initialized yet, try to initialize it
+  if (!authStore.isAuthenticated && localStorage.getItem('auth_authenticated') === 'true') {
     await authStore.fetchUser()
   }
   
@@ -115,24 +115,6 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
     next('/')
     return
-  }
-  
-  // Check admin permissions
-  if (to.meta.requiresAdmin && authStore.user) {
-    const isAdmin = authStore.user.roles.some(role => role.name === 'admin')
-    if (!isAdmin) {
-      next('/')
-      return
-    }
-  }
-  
-  // Check student permissions
-  if (to.meta.requiresStudent && authStore.user) {
-    const isStudent = authStore.user.roles.some(role => role.name === 'student')
-    if (!isStudent) {
-      next('/')
-      return
-    }
   }
   
   next()

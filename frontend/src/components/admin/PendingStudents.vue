@@ -46,7 +46,7 @@
 
 <script>
 import axios from 'axios'
-
+import apiClient from '../../api/http'
 export default {
   name: 'PendingStudents',
   data() {
@@ -62,7 +62,7 @@ export default {
     async fetchPendingStudents() {
       this.loading = true
       try {
-        const response = await axios.get('/api/admin/pending-students')
+        const response = await apiClient.get('/api/admin/pending-students')
         this.students = response.data.data
       } catch (error) {
         console.error('Error fetching pending students:', error)
@@ -72,7 +72,7 @@ export default {
     },
     async approveStudent(studentId) {
       try {
-        await axios.post(`/api/admin/approve-student/${studentId}`)
+        await apiClient.post(`/api/admin/approve-student/${studentId}`)
         this.students = this.students.filter(student => student.id !== studentId)
         alert('Student approved successfully')
       } catch (error) {
@@ -84,7 +84,7 @@ export default {
       if (!confirm('Are you sure you want to reject this student?')) return
       
       try {
-        await axios.post(`/api/admin/reject-student/${studentId}`)
+        await apiClient.post(`/api/admin/reject-student/${studentId}`)
         this.students = this.students.filter(student => student.id !== studentId)
         alert('Student rejected successfully')
       } catch (error) {

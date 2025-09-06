@@ -18,7 +18,7 @@
             class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             :class="[isCurrentRoute(item.to) ? 'bg-gray-100 text-gray-900' : '']"
           >
-            <CIcon :name="item.icon" class="mr-3 h-5 w-5" />
+            <!-- <CIcon :name="item.icon" class="mr-3 h-5 w-5" /> -->
             {{ item.name }}
           </router-link>
         </div>
@@ -28,16 +28,16 @@
 </template>
 
 <script>
-import { CIcon } from '@coreui/icons-vue'
+// import { CIcon } from '@coreui/icons-vue'
 import { useAuthStore } from '../../stores/auth'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 export default {
   name: 'Sidebar',
-  components: {
-    CIcon
-  },
+  // components: {
+  //   CIcon
+  // },
   setup() {
     const authStore = useAuthStore()
     const router = useRouter()
