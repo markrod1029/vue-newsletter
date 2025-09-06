@@ -11,7 +11,7 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $query = Event::with('user');
-
+        dd($query);
         // Filter by current user's events if requested
         if ($request->query('my_events')) {
             $query->where('user_id', auth()->id());
@@ -39,8 +39,8 @@ class EventController extends Controller
             ->where('status', 'approved')
             ->where('start_at', '>', now());
 
+
         // Limit
-        dd($query);
         $limit = $request->has('limit') ? $request->limit : 10;
 
         $events = $query->orderBy('start_at', 'asc')->paginate($limit);

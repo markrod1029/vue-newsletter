@@ -105,6 +105,7 @@
 
 <script>
 import axios from 'axios'
+import apiClient from "../../api/http";
 
 export default {
   name: 'PostCreate',
@@ -133,7 +134,7 @@ export default {
   methods: {
     async fetchPost() {
       try {
-        const response = await axios.get(`/api/posts/${this.postId}`)
+        const response = await apiClient.get(`/api/posts/${this.postId}`)
         this.form = { ...response.data.data }
       } catch (error) {
         console.error('Error fetching post:', error)
@@ -152,9 +153,9 @@ export default {
         
         let response
         if (this.isEditing) {
-          response = await axios.put(`/api/posts/${this.postId}`, postData)
+          response = await apiClient.put(`/api/posts/${this.postId}`, postData)
         } else {
-          response = await axios.post('/api/posts', postData)
+          response = await apiClient.post('/api/posts', postData)
         }
         
         alert(

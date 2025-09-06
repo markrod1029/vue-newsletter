@@ -1,123 +1,133 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 // Import components
-import Login from '../components/auth/Login.vue'
-import Register from '../components/auth/Register.vue'
-import Home from '../views/Home.vue'
-import Feed from '../views/Feed.vue'
-import Forums from '../views/Forums.vue'
-import ForumThread from '../views/ForumThread.vue'
-import Events from '../views/Events.vue'
-import AdminDashboard from '../components/admin/Dashboard.vue'
-import PendingStudents from '../components/admin/PendingStudents.vue'
-import PendingContent from '../components/admin/PendingContent.vue'
-import StudentDashboard from '../components/student/Dashboard.vue'
-import PostCreate from '../components/student/PostCreate.vue'
+import Login from "../components/auth/Login.vue";
+import Register from "../components/auth/Register.vue";
+import Home from "../views/Home.vue";
+import Feed from "../views/Feed.vue";
+import Forums from "../views/Forums.vue";
+import ForumThread from "../views/ForumThread.vue";
+import Events from "../views/Events.vue";
+import AdminDashboard from "../components/admin/Dashboard.vue";
+import PendingStudents from "../components/admin/PendingStudents.vue";
+import PendingContent from "../components/admin/PendingContent.vue";
+import StudentDashboard from "../components/student/Dashboard.vue";
+import PostCreate from "../components/student/PostCreate.vue";
 
 const routes = [
   {
-    path: '/',
-    name: 'Home',
+    path: "/",
+    name: "Home",
     component: Home,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
-    path: '/login',
-    name: 'Login',
+    path: "/login",
+    name: "Login",
     component: Login,
-    meta: { requiresGuest: true }
+    meta: { requiresGuest: true },
   },
   {
-    path: '/register',
-    name: 'Register',
+    path: "/register",
+    name: "Register",
     component: Register,
-    meta: { requiresGuest: true }
+    meta: { requiresGuest: true },
   },
   {
-    path: '/feed',
-    name: 'Feed',
+    path: "/feed",
+    name: "Feed",
     component: Feed,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
-    path: '/forums',
-    name: 'Forums',
+    path: "/forums",
+    name: "Forums",
     component: Forums,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
-    path: '/forums/:id',
-    name: 'ForumThread',
+    path: "/forums/:id",
+    name: "ForumThread",
     component: ForumThread,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
-    path: '/events',
-    name: 'Events',
+    path: "/events",
+    name: "Events",
     component: Events,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   // Admin routes
   {
-    path: '/admin',
-    name: 'AdminDashboard',
+    path: "/admin",
+    name: "AdminDashboard",
     component: AdminDashboard,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
-    path: '/admin/students',
-    name: 'PendingStudents',
+    path: "/admin/students",
+    name: "PendingStudents",
     component: PendingStudents,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
-    path: '/admin/content',
-    name: 'PendingContent',
+    path: "/admin/content",
+    name: "PendingContent",
     component: PendingContent,
-    meta: { requiresAuth: true, requiresAdmin: true }
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   // Student routes
   {
-    path: '/student',
-    name: 'StudentDashboard',
+    path: "/student",
+    name: "StudentDashboard",
     component: StudentDashboard,
-    meta: { requiresAuth: true, requiresStudent: true }
+    meta: { requiresAuth: true, requiresStudent: true },
   },
   {
-    path: '/student/post/create',
-    name: 'PostCreate',
+    path: "/student/post/create",
+    name: "PostCreate",
     component: PostCreate,
-    meta: { requiresAuth: true, requiresStudent: true }
-  }
-]
+    meta: { requiresAuth: true, requiresStudent: true },
+  },
+
+  {
+    path: "/student/post/edit/:id",
+    name: "PostCreate",
+    component: PostCreate,
+    meta: { requiresAuth: true, requiresStudent: true },
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
 router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore()
-  
+  const authStore = useAuthStore();
+
   // If auth is not initialized yet, try to initialize it
-  if (!authStore.isAuthenticated && localStorage.getItem('auth_authenticated') === 'true') {
-    await authStore.fetchUser()
+  if (
+    !authStore.isAuthenticated &&
+    localStorage.getItem("auth_authenticated") === "true"
+  ) {
+    await authStore.fetchUser();
   }
-  
+
   // Check if route requires authentication
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-    return
+    next("/login");
+    return;
   }
-  
+
   // Check if route requires guest (non-authenticated)
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next('/')
-    return
+    next("/");
+    return;
   }
-  
-  next()
-})
 
-export default router
+  next();
+});
+
+export default router;

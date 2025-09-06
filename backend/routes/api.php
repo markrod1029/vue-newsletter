@@ -18,6 +18,12 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
     return response()->json(['message' => 'CSRF cookie set']);
 });
+
+// Public content routes
+Route::get('/feed', [PostController::class, 'feed']);
+Route::get('/events/upcoming', [EventController::class, 'upcoming']);
+Route::get('/forums-public', [ForumController::class, 'indexPublic']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [LogoutController::class, 'logout']);
@@ -52,8 +58,3 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/reject-content/{id}', [AdminController::class, 'rejectContent']);
     });
 });
-
-// Public content routes
-Route::get('/feed', [PostController::class, 'feed']);
-Route::get('/events/upcoming', [EventController::class, 'upcoming']);
-Route::get('/forums-public', [ForumController::class, 'indexPublic']);

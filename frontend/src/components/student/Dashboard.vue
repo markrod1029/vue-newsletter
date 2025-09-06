@@ -116,6 +116,7 @@
 <script>
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
+import apiClient from "../../api/http";
 
 export default {
   name: 'StudentDashboard',
@@ -145,7 +146,7 @@ export default {
   methods: {
     async fetchPosts() {
       try {
-        const response = await axios.get('/api/posts?my_posts=true')
+        const response = await apiClient.get('/api/posts?my_posts=true')
         this.posts = response.data.data.slice(0, 5)
       } catch (error) {
         console.error('Error fetching posts:', error)
@@ -153,7 +154,7 @@ export default {
     },
     async fetchEvents() {
       try {
-        const response = await axios.get('/api/events?my_events=true')
+        const response = await apiClient.get('/api/events?my_events=true')
         this.events = response.data.data.slice(0, 5)
       } catch (error) {
         console.error('Error fetching events:', error)
@@ -185,7 +186,7 @@ export default {
       if (!confirm('Are you sure you want to delete this post?')) return
       
       try {
-        await axios.delete(`/api/posts/${postId}`)
+        await apiClient.delete(`/api/posts/${postId}`)
         this.posts = this.posts.filter(post => post.id !== postId)
         await this.calculateStats()
         alert('Post deleted successfully')
@@ -201,7 +202,7 @@ export default {
       if (!confirm('Are you sure you want to delete this event?')) return
       
       try {
-        await axios.delete(`/api/events/${eventId}`)
+        await apiClient.delete(`/api/events/${eventId}`)
         this.events = this.events.filter(event => event.id !== eventId)
         await this.calculateStats()
         alert('Event deleted successfully')
