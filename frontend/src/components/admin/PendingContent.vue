@@ -110,6 +110,7 @@
 
 <script>
 import axios from 'axios'
+import apiClient from '../../api/http'
 
 export default {
   name: 'PendingContent',
@@ -134,7 +135,7 @@ export default {
     async fetchPendingContent() {
       this.loading = true
       try {
-        const response = await axios.get(`/api/admin/pending-content?type=${this.contentType}`)
+        const response = await apiClient.get(`/api/admin/pending-content?type=${this.contentType}`)
         this.content = response.data.data
       } catch (error) {
         console.error('Error fetching pending content:', error)
@@ -144,7 +145,7 @@ export default {
     },
     async approveContent(type, id) {
       try {
-        await axios.post(`/api/admin/approve-content/${id}`, { type })
+        await apiClient.post(`/api/admin/approve-content/${id}`, { type })
         this.content = this.content.filter(item => item.id !== id)
         alert(`${type === 'posts' ? 'Post' : 'Event'} approved successfully`)
       } catch (error) {
@@ -156,7 +157,7 @@ export default {
       if (!confirm('Are you sure you want to reject this content?')) return
       
       try {
-        await axios.post(`/api/admin/reject-content/${id}`, { type })
+        await apiClient.post(`/api/admin/reject-content/${id}`, { type })
         this.content = this.content.filter(item => item.id !== id)
         alert(`${type === 'posts' ? 'Post' : 'Event'} rejected successfully`)
       } catch (error) {

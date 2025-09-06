@@ -149,6 +149,7 @@
 
 <script>
 import axios from 'axios'
+import apiClient from '../../api/http'
 
 export default {
   name: 'AdminDashboard',
@@ -184,7 +185,7 @@ export default {
   methods: {
     async fetchStats() {
       try {
-        const response = await axios.get('/api/admin/dashboard')
+        const response = await apiClient.get('/api/admin/dashboard')
         this.stats = response.data
       } catch (error) {
         console.error('Error fetching stats:', error)
@@ -192,7 +193,7 @@ export default {
     },
     async fetchRecentActivity() {
       try {
-        const response = await axios.get('/api/admin/recent-activity')
+        const response = await apiClient.get('/api/admin/recent-activity')
         this.recentActivity = response.data
       } catch (error) {
         console.error('Error fetching recent activity:', error)
@@ -206,7 +207,7 @@ export default {
     },
     async createPost() {
       try {
-        await axios.post('/api/posts', this.newPost)
+        await apiClient.post('/api/posts', this.newPost)
         this.showCreatePostModal = false
         this.newPost = { title: '', body: '', type: 'news' }
         alert('Post created successfully')
@@ -218,7 +219,7 @@ export default {
     },
     async createEvent() {
       try {
-        await axios.post('/api/events', this.newEvent)
+        await apiClient.post('/api/events', this.newEvent)
         this.showCreateEventModal = false
         this.newEvent = { title: '', description: '', location: '', start_at: '', end_at: '' }
         alert('Event created successfully')

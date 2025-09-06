@@ -141,7 +141,7 @@
 
 <script>
 import { useAuthStore } from '../stores/auth'
-import axios from 'axios'
+import apiClient from '../api/http'
 
 export default {
   name: 'Events',
@@ -194,7 +194,7 @@ export default {
           status: this.filterStatus
         })
 
-        const response = await axios.get(`/api/events?${params}`)
+        const response = await apiClient.get(`/api/events?${params}`)
         this.events = response.data.data
         this.pagination = {
           current_page: response.data.meta.current_page,
@@ -213,7 +213,7 @@ export default {
     },
     async createEvent() {
       try {
-        const response = await axios.post('/api/events', this.newEvent)
+        const response = await apiClient.post('/api/events', this.newEvent)
         this.events.unshift(response.data.data)
         this.showCreateEventModal = false
         this.newEvent = { title: '', description: '', location: '', start_at: '', end_at: '' }
@@ -230,7 +230,7 @@ export default {
       if (!confirm('Are you sure you want to delete this event?')) return
       
       try {
-        await axios.delete(`/api/events/${eventId}`)
+        await apiClient.delete(`/api/events/${eventId}`)
         this.events = this.events.filter(event => event.id !== eventId)
         alert('Event deleted successfully')
       } catch (error) {

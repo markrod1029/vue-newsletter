@@ -77,6 +77,7 @@
 <script>
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
+import apiClient from '../api/http'
 
 export default {
   name: 'Forums',
@@ -111,7 +112,7 @@ export default {
           search: this.searchQuery
         })
 
-        const response = await axios.get(`/api/forums-public?${params}`)
+        const response = await apiClient.get(`/api/forums-public?${params}`)
         this.forums = response.data.data
       } catch (error) {
         console.error('Error fetching forums:', error)
@@ -121,7 +122,7 @@ export default {
     },
     async createForum() {
       try {
-        const response = await axios.post('/api/forums', this.newForum)
+        const response = await apiClient.post('/api/forums', this.newForum)
         this.forums.unshift(response.data.data)
         this.showCreateForumModal = false
         this.newForum = { title: '', description: '', is_locked: false }
