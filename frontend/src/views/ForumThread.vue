@@ -105,6 +105,7 @@
 <script>
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
+import apiClient from '../api/http'
 
 export default {
   name: 'ForumThread',
@@ -142,7 +143,7 @@ export default {
   methods: {
     async fetchForum() {
       try {
-        const response = await axios.get(`/api/forums/${this.$route.params.id}`)
+        const response = await apiClient.get(`/api/forums/${this.$route.params.id}`)
         this.forum = response.data.data
       } catch (error) {
         console.error('Error fetching forum:', error)
@@ -151,7 +152,7 @@ export default {
     async fetchThreads() {
       this.loading = true
       try {
-        const response = await axios.get(`/api/threads?forum_id=${this.$route.params.id}`)
+        const response = await apiClient.get(`/api/threads?forum_id=${this.$route.params.id}`)
         this.threads = response.data.data
       } catch (error) {
         console.error('Error fetching threads:', error)
@@ -166,7 +167,7 @@ export default {
           forum_id: this.$route.params.id
         }
         
-        const response = await axios.post('/api/threads', threadData)
+        const response = await apiClient.post('/api/threads', threadData)
         this.threads.unshift(response.data.data)
         this.showCreateThreadModal = false
         this.newThread = { title: '', body: '' }
@@ -183,7 +184,7 @@ export default {
       if (!confirm('Are you sure you want to delete this thread?')) return
       
       try {
-        await axios.delete(`/api/threads/${threadId}`)
+        await apiClient.delete(`/api/threads/${threadId}`)
         this.threads = this.threads.filter(thread => thread.id !== threadId)
         alert('Thread deleted successfully')
       } catch (error) {

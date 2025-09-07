@@ -12,6 +12,9 @@ use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+// Route::get('/feed', [PostController::class, 'feed']); // temporary lang
+
 // Public routes
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
@@ -20,7 +23,9 @@ Route::get('/sanctum/csrf-cookie', function (Request $request) {
 });
 
 // Public content routes
-Route::get('/feed', [PostController::class, 'feed']);
+Route::middleware('auth:sanctum')->get('/feed', [PostController::class, 'feed']);
+
+Route::get('/public-feed', [PostController::class, 'publicFeed']);
 Route::get('/events/upcoming', [EventController::class, 'upcoming']);
 Route::get('/forums-public', [ForumController::class, 'indexPublic']);
 
@@ -30,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user()->load('roles');
     });
+
 
     // Posts
     Route::apiResource('posts', PostController::class);

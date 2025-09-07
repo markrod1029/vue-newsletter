@@ -10,6 +10,9 @@
     "build:laravel": "npm run build && cp -r dist/* ../newsletter-backend/public/"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@coreui/coreui": "^5.4.3",
     "@coreui/icons-vue": "^2.2.0",
     "@coreui/utils": "^2.0.2",

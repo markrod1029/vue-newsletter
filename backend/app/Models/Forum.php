@@ -39,6 +39,38 @@ class Forum extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($forum) {
+            if (empty($forum->slug)) {
+                $forum->slug = \Illuminate\Support\Str::slug($forum->title);
+
+                // Ensure slug is unique
+                $originalSlug = $forum->slug;
+                $count = 1;
+                while (Forum::where('slug', $forum->slug)->exists()) {
+                    $forum->slug = $originalSlug . '-' . $count;
+                    $count++;
+                }
+            }
+        });
+
+        static::updating(function ($forum) {
+            if ($forum->isDirty('title') && empty($forum->slug)) {
+                $forum->slug = \Illuminate\Support\Str::slug($forum->title);
+
+                // Ensure slug is unique
+                $originalSlug = $forum->slug;
+                $count = 1;
+                while (Forum::where('slug', $forum->slug)->where('id', '!=', $forum->id)->exists()) {
+                    $forum->slug = $originalSlug . '-' . $count;
+                    $count++;
+                }
+            }
+        });
+    }
     /**
      * Get the threads for the forum.
      */
@@ -50,10 +82,24 @@ class Forum extends Model
     /**
      * Get all comments for the forum through threads.
      */
+    // public function comments()
+    // {
+    //     return $this->hasManyThrough(Comment::class, Thread::class);
+    // }
+
     public function comments()
     {
-        return $this->hasManyThrough(Comment::class, Thread::class);
+        // Since we have polymorphic relationships, we need to query differently
+        return Comment::whereHasMorph(
+            'commentable',
+            [Thread::class],
+            function ($query) {
+                $query->where('forum_id', $this->id);
+            }
+        );
     }
+
+
 
     /**
      * Scope a query to only include unlocked forums.
@@ -82,9 +128,20 @@ class Forum extends Model
     /**
      * Get the number of comments in the forum.
      */
+    // public function getCommentsCountAttribute()
+    // {
+    //     return $this->comments()->count();
+    // }
+
     public function getCommentsCountAttribute()
     {
-        return $this->comments()->count();
+        return Comment::whereHasMorph(
+            'commentable',
+            [Thread::class],
+            function ($query) {
+                $query->where('forum_id', $this->id);
+            }
+        )->count();
     }
 
     /**

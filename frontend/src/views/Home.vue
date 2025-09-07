@@ -26,20 +26,10 @@
         </div>
       </div>
 
-      <!-- Forums Card -->
-      <div class="card cursor-pointer hover:shadow-lg transition-shadow" @click="$router.push('/forums')">
-        <div class="card-body text-center">
-          <div class="icon-warning mb-3">💬</div>
-          <h3 class="text-lg font-semibold mb-2">Forums</h3>
-          <p class="text-gray-600">Join discussions with other students</p>
-        </div>
-      </div>
     </div>
 
-    <!-- Recent Content Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Recent News -->
-      <div class="card">
+      <!-- <div class="card">
         <div class="card-header">
           <h2 class="text-xl font-semibold">Recent News</h2>
         </div>
@@ -57,10 +47,9 @@
           </ul>
           <button class="btn btn-primary mt-3" @click="$router.push('/feed')">View All News</button>
         </div>
-      </div>
+      </div> -->
 
-      <!-- Upcoming Events -->
-      <div class="card">
+      <!-- <div class="card">
         <div class="card-header">
           <h2 class="text-xl font-semibold">Upcoming Events</h2>
         </div>
@@ -78,13 +67,10 @@
           </ul>
           <button class="btn btn-success mt-3" @click="$router.push('/events')">View All Events</button>
         </div>
-      </div>
+      </div> -->
     </div>
 
-    <!-- Loading Spinner (hidden by default) -->
-    <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="spinner-large"></div>
-    </div>
+   
   </div>
 </template>
 
@@ -95,47 +81,47 @@ export default {
   name: 'Home',
   data() {
     return {
-      recentPosts: [],
-      upcomingEvents: [],
+      // recentPosts: [],
+      // upcomingEvents: [],
       loading: false
     }
   },
   async mounted() {
-    await this.fetchRecentPosts()
-    await this.fetchUpcomingEvents()
+    // await this.fetchRecentPosts()
+    // await this.fetchUpcomingEvents()
   },
   methods: {
-    async fetchRecentPosts() {
-      this.loading = true
-      try {
-        const response = await apiClient.get('/api/feed?limit=5')
-        this.recentPosts = response.data.data
-      } catch (error) {
-        console.error('Error fetching recent posts:', error)
-        this.recentPosts = [
-          { id: 1, title: 'Welcome to Campus Newsletter', created_at: new Date().toISOString(), status: 'approved' },
-          { id: 2, title: 'New Semester Guidelines', created_at: new Date().toISOString(), status: 'approved' }
-        ]
-      } finally {
-        this.loading = false
-      }
-    },
+    // async fetchRecentPosts() {
+    //   this.loading = true
+    //   try {
+    //     const response = await apiClient.get('/api/feed?limit=5')
+    //     this.recentPosts = response.data.data
+    //   } catch (error) {
+    //     console.error('Error fetching recent posts:', error)
+    //     this.recentPosts = [
+    //       { id: 1, title: 'Welcome to Campus Newsletter', created_at: new Date().toISOString(), status: 'approved' },
+    //       { id: 2, title: 'New Semester Guidelines', created_at: new Date().toISOString(), status: 'approved' }
+    //     ]
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // },
 
-    async fetchUpcomingEvents() {
-      this.loading = true
-      try {
-        const response = await apiClient.get('/api/events/upcoming?limit=5')
-        this.upcomingEvents = response.data.data
-      } catch (error) {
-        console.error('Error fetching upcoming events:', error)
-        this.upcomingEvents = [
-          { id: 1, title: 'Orientation Day', start_at: new Date().toISOString(), status: 'approved' },
-          { id: 2, title: 'Sports Festival', start_at: new Date(Date.now() + 86400000).toISOString(), status: 'approved' }
-        ]
-      } finally {
-        this.loading = false
-      }
-    },
+    // async fetchUpcomingEvents() {
+    //   this.loading = true
+    //   try {
+    //     const response = await apiClient.get('/api/events/upcoming?limit=5')
+    //     this.upcomingEvents = response.data.data
+    //   } catch (error) {
+    //     console.error('Error fetching upcoming events:', error)
+    //     this.upcomingEvents = [
+    //       { id: 1, title: 'Orientation Day', start_at: new Date().toISOString(), status: 'approved' },
+    //       { id: 2, title: 'Sports Festival', start_at: new Date(Date.now() + 86400000).toISOString(), status: 'approved' }
+    //     ]
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // },
 
     formatDate(dateString) {
       if (!dateString) return 'No date'

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
-import apiClient from "../api/http"; // Use the configured axios
-
+import apiClient from "../api/http";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
@@ -64,6 +63,17 @@ export const useAuthStore = defineStore("auth", {
         };
       } finally {
         this.loading = false;
+      }
+    },
+
+     async logout() {
+      try {
+        await apiClient.post('/api/logout')
+        this.user = null
+        this.isAuthenticated = false
+        return { success: true }
+      } catch (error) {
+        return { success: false }
       }
     },
 

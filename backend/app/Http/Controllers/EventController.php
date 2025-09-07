@@ -11,7 +11,6 @@ class EventController extends Controller
     public function index(Request $request)
     {
         $query = Event::with('user');
-        dd($query);
         // Filter by current user's events if requested
         if ($request->query('my_events')) {
             $query->where('user_id', auth()->id());

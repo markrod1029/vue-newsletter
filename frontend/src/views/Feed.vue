@@ -95,6 +95,7 @@
 <script>
 import { useAuthStore } from '../stores/auth'
 import axios from 'axios'
+import apiClient from '../api/http'
 
 export default {
   name: 'Feed',
@@ -138,7 +139,7 @@ export default {
           status: this.filterStatus
         })
 
-        const response = await axios.get(`/api/feed?${params}`)
+        const response = await apiClient.get(`/api/posts?${params}?my_posts=true`)
         this.posts = response.data.data
         this.pagination = {
           current_page: response.data.meta.current_page,
@@ -159,7 +160,7 @@ export default {
       if (!confirm('Are you sure you want to delete this post?')) return
       
       try {
-        await axios.delete(`/api/posts/${postId}`)
+        await apiClient.delete(`/api/posts/${postId}`)
         this.posts = this.posts.filter(post => post.id !== postId)
         alert('Post deleted successfully')
       } catch (error) {

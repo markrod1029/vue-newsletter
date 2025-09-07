@@ -6,6 +6,7 @@ import Login from "../components/auth/Login.vue";
 import Register from "../components/auth/Register.vue";
 import Home from "../views/Home.vue";
 import Feed from "../views/Feed.vue";
+import Search from "../views/search.vue";
 import Forums from "../views/Forums.vue";
 import ForumThread from "../views/ForumThread.vue";
 import Events from "../views/Events.vue";
@@ -41,6 +42,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/news-feed",
+    name: "news-feed",
+    component: Search,
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/forums",
     name: "Forums",
     component: Forums,
@@ -58,6 +65,13 @@ const routes = [
     component: Events,
     meta: { requiresAuth: true },
   },
+
+  // {
+  //   path: "/events/:id",
+  //   name: "EventThread",
+  //   component: Events,
+  //   meta: { requiresAuth: true },
+  // },
   // Admin routes
   {
     path: "/admin",
@@ -93,7 +107,7 @@ const routes = [
 
   {
     path: "/student/post/edit/:id",
-    name: "PostCreate",
+    name: "PostEdit",
     component: PostCreate,
     meta: { requiresAuth: true, requiresStudent: true },
   },

@@ -83,7 +83,6 @@ export default {
         { name: 'Home', to: '/' },
         { name: 'News', to: '/feed' },
         { name: 'Events', to: '/events' },
-        { name: 'Forums', to: '/forums' }
       ]
     })
 

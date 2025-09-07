@@ -15,7 +15,7 @@ class PostController extends Controller
 
         // Filter by current user's posts if requested
         if ($request->query('my_posts')) {
-            $query->where('user_id', auth()->id());
+            $query->where('user_id', operator: auth()->id());
         }
 
         // Filter by status
@@ -23,41 +23,64 @@ class PostController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->has('type')) {
+            $query->where('type', $request->type);
+        }
         // Search
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('body', 'like', '%' . $request->search . '%');
+                ->orWhere('body', 'like', '%' . $request->search . '%');
         }
+        $limit = $request->get('limit', 10);
 
-        $posts = $query->orderBy('created_at', 'desc')->paginate(10);
+        $posts = $query->orderBy('created_at', 'desc')->paginate($limit);
 
-        return response()->json($posts);
+     return response()->json([
+            'data' => $posts->items(), // actual posts array
+            'meta' => [
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage(),
+                'per_page' => $posts->perPage(),
+                'total' => $posts->total(),
+            ]
+        ]);
     }
 
     public function feed(Request $request)
     {
+
         $query = Post::with('user')
             ->where('status', 'approved')
             ->whereNotNull('published_at');
 
-        // Filter by type
+        if ($request->query('my_feeds')) {
+            $query->where('user_id', operator: auth()->id());
+        }
+
         if ($request->has('type')) {
             $query->where('type', $request->type);
         }
 
-        // Search
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
-                  ->orWhere('body', 'like', '%' . $request->search . '%');
+                ->orWhere('body', 'like', '%' . $request->search . '%');
         }
 
-        // Limit
-        $limit = $request->has('limit') ? $request->limit : 10;
+        $limit = $request->get('limit', 10);
 
         $posts = $query->orderBy('published_at', 'desc')->paginate($limit);
 
-        return response()->json($posts);
+        return response()->json([
+            'data' => $posts->items(), // actual posts array
+            'meta' => [
+                'current_page' => $posts->currentPage(),
+          'last_page' => $posts->lastPage(),
+                'per_page' => $posts->perPage(),
+                'total' => $posts->total(),
+            ]
+        ]);
     }
+
 
     public function store(Request $request)
     {
@@ -89,7 +112,10 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        // Only allow viewing approved posts or posts owned by the user
+        // Allow viewing if:
+        // 1. Post is approved, OR
+        // 2. User owns the post, OR
+        // 3. User is admin
         if ($post->status !== 'approved' && $post->user_id !== auth()->id()) {
             if (!auth()->user()->hasRole('admin')) {
                 return response()->json(['message' => 'Unauthorized'], 403);
@@ -118,13 +144,14 @@ class PostController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $post->update($request->all());
+        $data = $request->all();
 
         // Update published_at if status changed to approved
         if ($request->has('status') && $request->status === 'approved' && !$post->published_at) {
-            $post->published_at = now();
-            $post->save();
+            $data['published_at'] = now();
         }
+
+        $post->update($data);
 
         return response()->json(['data' => $post->load('user')]);
     }
@@ -140,6 +167,34 @@ class PostController extends Controller
 
         return response()->json(['message' => 'Post deleted successfully']);
     }
+
+    public function publicFeed(Request $request)
+    {
+        $query = Post::with('user')
+            ->where('status', 'approved');
+
+        // Search (only if not empty)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('body', 'like', "%{$search}%");
+            });
+        }
+
+        // Optional: filter by type (e.g. news, article)
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Pagination limit
+        $limit = $request->get('limit', 10);
+
+        $posts = $query->orderBy('published_at', 'desc')->paginate($limit);
+
+        return response()->json($posts);
+    }
+
 
     public function submit(Post $post)
     {
