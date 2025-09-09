@@ -29,15 +29,18 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'grade_level' => $request->grade_level,
-            'status' => User::STATUS_PENDING,
+            'status' => User::STATUS_PENDING, // kailangan pa rin ng admin approval
         ]);
 
         // Assign student role
         $studentRole = Role::findOrCreate('student');
         $user->assignRole($studentRole);
 
+        // Send email verification link
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
-            'message' => 'User registered successfully. Waiting for admin approval.',
+            'message' => 'User registered successfully. Please check your email to verify your account. Waiting for admin approval.',
             'user' => $user
         ], 201);
     }

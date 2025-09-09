@@ -15,28 +15,31 @@ class PostController extends Controller
 
         // Filter by current user's posts if requested
         if ($request->query('my_posts')) {
-            $query->where('user_id', operator: auth()->id());
+            $query->where('user_id', auth()->id()); // Fixed syntax
         }
 
         // Filter by status
-        if ($request->has('status')) {
+        if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
 
-        if ($request->has('type')) {
+        if ($request->has('type') && $request->type != '') {
             $query->where('type', $request->type);
         }
-        // Search
-        if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                ->orWhere('body', 'like', '%' . $request->search . '%');
-        }
-        $limit = $request->get('limit', 10);
 
+        // Search
+        if ($request->has('search') && $request->search != '') {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                    ->orWhere('body', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $limit = $request->get('limit', 10);
         $posts = $query->orderBy('created_at', 'desc')->paginate($limit);
 
-     return response()->json([
-            'data' => $posts->items(), // actual posts array
+        return response()->json([
+            'data' => $posts->items(),
             'meta' => [
                 'current_page' => $posts->currentPage(),
                 'last_page' => $posts->lastPage(),
@@ -74,7 +77,7 @@ class PostController extends Controller
             'data' => $posts->items(), // actual posts array
             'meta' => [
                 'current_page' => $posts->currentPage(),
-          'last_page' => $posts->lastPage(),
+                'last_page' => $posts->lastPage(),
                 'per_page' => $posts->perPage(),
                 'total' => $posts->total(),
             ]
@@ -88,7 +91,7 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'body' => 'required|string',
             'type' => 'required|in:news,article',
-            'cover_image_url' => 'nullable|url',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Changed from cover_image_url
             'status' => 'required|in:draft,pending,approved,rejected,archived'
         ]);
 
@@ -96,16 +99,28 @@ class PostController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $post = Post::create([
+        $data = [
             'user_id' => auth()->id(),
             'title' => $request->title,
             'slug' => Str::slug($request->title) . '-' . uniqid(),
             'body' => $request->body,
             'type' => $request->type,
             'status' => $request->status,
-            'cover_image_url' => $request->cover_image_url,
             'published_at' => $request->status === 'approved' ? now() : null
-        ]);
+        ];
+
+        // Handle image upload
+        if ($request->hasFile('cover_image')) {
+            $image = $request->file('cover_image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('posts', $imageName, 'public');
+            $data['cover_image_url'] = '/storage/' . $imagePath;
+        } elseif ($request->cover_image_url) {
+            // Fallback to URL if provided
+            $data['cover_image_url'] = $request->cover_image_url;
+        }
+
+        $post = Post::create($data);
 
         return response()->json(['data' => $post->load('user')], 201);
     }
@@ -136,6 +151,7 @@ class PostController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'body' => 'sometimes|required|string',
             'type' => 'sometimes|required|in:news,article',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'cover_image_url' => 'nullable|url',
             'status' => 'sometimes|required|in:draft,pending,approved,rejected,archived'
         ]);
@@ -144,7 +160,21 @@ class PostController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $data = $request->all();
+        $data = $request->except(['cover_image']);
+
+        // Handle image upload
+        if ($request->hasFile('cover_image')) {
+            // Delete old image if exists
+            if ($post->cover_image_url && strpos($post->cover_image_url, '/storage/posts/') === 0) {
+                $oldImagePath = str_replace('/storage/', '', $post->cover_image_url);
+                Storage::disk('public')->delete($oldImagePath);
+            }
+
+            $image = $request->file('cover_image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('posts', $imageName, 'public');
+            $data['cover_image_url'] = '/storage/' . $imagePath;
+        }
 
         // Update published_at if status changed to approved
         if ($request->has('status') && $request->status === 'approved' && !$post->published_at) {

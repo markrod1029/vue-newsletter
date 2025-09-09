@@ -11,6 +11,12 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+
+
+Route::get('/test-json', function () {
+    return response()->json(['message' => 'Laravel is working!']);
+});
 
 
 // Route::get('/feed', [PostController::class, 'feed']); // temporary lang
@@ -18,9 +24,17 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
-Route::get('/sanctum/csrf-cookie', function (Request $request) {
-    return response()->json(['message' => 'CSRF cookie set']);
-});
+
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return response()->json(['message' => 'Email verified!']);
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return response()->json(['message' => 'Verification link sent!']);
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 // Public content routes
 Route::middleware('auth:sanctum')->get('/feed', [PostController::class, 'feed']);
