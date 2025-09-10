@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamp('start_at')->nullable();
             $table->timestamp('end_at')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected', 'archived'])->default('pending');
-            $table->string('banner_url')->nullable();
+            $table->string('image_url')->nullable();
             $table->timestamps();
 
             $table->index(['status', 'start_at']);

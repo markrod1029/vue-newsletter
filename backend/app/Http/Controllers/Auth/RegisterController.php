@@ -37,7 +37,7 @@ class RegisterController extends Controller
         $user->assignRole($studentRole);
 
         // Send email verification link
-        $user->sendEmailVerificationNotification();
+        // $user->sendEmailVerificationNotification();
 
         return response()->json([
             'message' => 'User registered successfully. Please check your email to verify your account. Waiting for admin approval.',

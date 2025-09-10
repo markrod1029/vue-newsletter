@@ -14,9 +14,11 @@ class Post extends Model
         'slug',
         'body',
         'type',
+        'media_url',
+        'media_type',
+        'type',
         'status',
         'published_at',
-        'cover_image_url'
     ];
 
     protected $casts = [

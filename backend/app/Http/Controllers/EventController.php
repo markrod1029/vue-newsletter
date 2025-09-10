@@ -5,21 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
     public function index(Request $request)
     {
         $query = Event::with('user');
-        // Filter by current user's events if requested
-        if ($request->query('my_events')) {
-            $query->where('user_id', auth()->id());
+
+
+        if($request->query('approved')) {
+            $query->where('status', 'approved');
+
         }
 
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
 
         // Search
         if ($request->has('search')) {
@@ -38,7 +37,6 @@ class EventController extends Controller
             ->where('status', 'approved')
             ->where('start_at', '>', now());
 
-
         // Limit
         $limit = $request->has('limit') ? $request->limit : 10;
 
@@ -55,6 +53,7 @@ class EventController extends Controller
             'location' => 'required|string|max:255',
             'start_at' => 'required|date',
             'end_at' => 'required|date|after:start_at',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // 2MB max
             'status' => 'sometimes|in:pending,approved,rejected,archived'
         ]);
 
@@ -62,21 +61,25 @@ class EventController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Set default status for students
-        $status = $request->status ?? 'pending';
-        if (auth()->user()->hasRole('admin')) {
-            $status = $request->status ?? 'approved';
-        }
-
-        $event = Event::create([
+        $data = [
             'user_id' => auth()->id(),
             'title' => $request->title,
             'description' => $request->description,
             'location' => $request->location,
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
-            'status' => $status
-        ]);
+            'status' => $request->status ?? 'pending'
+        ];
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('events', $imageName, 'public');
+            $data['image_url'] = '/storage/' . $imagePath;
+        }
+
+        $event = Event::create($data);
 
         return response()->json(['data' => $event->load('user')], 201);
     }
@@ -106,6 +109,7 @@ class EventController extends Controller
             'location' => 'sometimes|required|string|max:255',
             'start_at' => 'sometimes|required|date',
             'end_at' => 'sometimes|required|date|after:start_at',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'sometimes|in:pending,approved,rejected,archived'
         ]);
 
@@ -113,7 +117,23 @@ class EventController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $event->update($request->all());
+        $data = $request->except(['image']);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($event->image_url && strpos($event->image_url, '/storage/events/') === 0) {
+                $oldImagePath = str_replace('/storage/', '', $event->image_url);
+                Storage::disk('public')->delete($oldImagePath);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('events', $imageName, 'public');
+            $data['image_url'] = '/storage/' . $imagePath;
+        }
+
+        $event->update($data);
 
         return response()->json(['data' => $event->load('user')]);
     }
@@ -123,6 +143,12 @@ class EventController extends Controller
         // Check if user owns the event or is admin
         if ($event->user_id !== auth()->id() && !auth()->user()->hasRole('admin')) {
             return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        // Delete associated image
+        if ($event->image_url && strpos($event->image_url, '/storage/events/') === 0) {
+            $imagePath = str_replace('/storage/', '', $event->image_url);
+            Storage::disk('public')->delete($imagePath);
         }
 
         $event->delete();

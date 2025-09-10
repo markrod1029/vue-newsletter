@@ -17,7 +17,7 @@ class Event extends Model
         'start_at',
         'end_at',
         'status',
-        'banner_url'
+        'image_url'
     ];
 
     protected $casts = [

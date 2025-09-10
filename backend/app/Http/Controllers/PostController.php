@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -91,7 +92,8 @@ class PostController extends Controller
             'title' => 'required|string|max:255',
             'body' => 'required|string',
             'type' => 'required|in:news,article',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Changed from cover_image_url
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480', // 20MB max
+            'media_type' => 'nullable|in:image,video',
             'status' => 'required|in:draft,pending,approved,rejected,archived'
         ]);
 
@@ -109,21 +111,25 @@ class PostController extends Controller
             'published_at' => $request->status === 'approved' ? now() : null
         ];
 
-        // Handle image upload
-        if ($request->hasFile('cover_image')) {
-            $image = $request->file('cover_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('posts', $imageName, 'public');
-            $data['cover_image_url'] = '/storage/' . $imagePath;
-        } elseif ($request->cover_image_url) {
-            // Fallback to URL if provided
-            $data['cover_image_url'] = $request->cover_image_url;
+        // Handle media upload
+        if ($request->hasFile('media')) {
+            $media = $request->file('media');
+            $mediaName = time() . '_' . $media->getClientOriginalName();
+
+            // Store in different folders based on media type
+            $folder = $request->media_type === 'video' ? 'videos' : 'images';
+            $mediaPath = $media->storeAs("posts/$folder", $mediaName, 'public');
+
+            $data['media_url'] = '/storage/' . $mediaPath;
+            $data['media_type'] = $request->media_type;
         }
 
         $post = Post::create($data);
 
         return response()->json(['data' => $post->load('user')], 201);
     }
+
+
 
     public function show(Post $post)
     {
@@ -151,8 +157,8 @@ class PostController extends Controller
             'title' => 'sometimes|required|string|max:255',
             'body' => 'sometimes|required|string',
             'type' => 'sometimes|required|in:news,article',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'cover_image_url' => 'nullable|url',
+            'media' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+            'media_type' => 'nullable|in:image,video',
             'status' => 'sometimes|required|in:draft,pending,approved,rejected,archived'
         ]);
 
@@ -160,20 +166,25 @@ class PostController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $data = $request->except(['cover_image']);
+        $data = $request->except(['media']);
 
-        // Handle image upload
-        if ($request->hasFile('cover_image')) {
-            // Delete old image if exists
-            if ($post->cover_image_url && strpos($post->cover_image_url, '/storage/posts/') === 0) {
-                $oldImagePath = str_replace('/storage/', '', $post->cover_image_url);
-                Storage::disk('public')->delete($oldImagePath);
+        // Handle media upload
+        if ($request->hasFile('media')) {
+            // Delete old media if exists
+            if ($post->media_url) {
+                $oldMediaPath = str_replace('/storage/', '', $post->media_url);
+                Storage::disk('public')->delete($oldMediaPath);
             }
 
-            $image = $request->file('cover_image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $imagePath = $image->storeAs('posts', $imageName, 'public');
-            $data['cover_image_url'] = '/storage/' . $imagePath;
+            $media = $request->file('media');
+            $mediaName = time() . '_' . $media->getClientOriginalName();
+
+            // Store in different folders based on media type
+            $folder = $request->media_type === 'video' ? 'videos' : 'images';
+            $mediaPath = $media->storeAs("posts/$folder", $mediaName, 'public');
+
+            $data['media_url'] = '/storage/' . $mediaPath;
+            $data['media_type'] = $request->media_type;
         }
 
         // Update published_at if status changed to approved
@@ -185,7 +196,6 @@ class PostController extends Controller
 
         return response()->json(['data' => $post->load('user')]);
     }
-
     public function destroy(Post $post)
     {
         // Check if user owns the post or is admin
