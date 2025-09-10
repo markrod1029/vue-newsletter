@@ -1,13 +1,13 @@
 <template>
-  <footer class="mobile-footer " >
-    <nav class="footer-nav" >
+  <footer class="mobile-footer  ">
+    <nav class="footer-nav">
       <!-- Left: Menu -->
       <button class="footer-link" @click="isMenuOpen = true">
         <!-- SVG menu icon -->
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
         </svg>
         <small>Menu</small>
       </button>
@@ -15,35 +15,25 @@
       <!-- Center: Search -->
       <router-link to="/news-feed" class="footer-link center-btn">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="11" cy="11" r="8"/>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
       </router-link>
 
       <!-- Right: Dashboard -->
-      <router-link 
-        v-if="isStudent" 
-        to="/student" 
-        class="footer-link" 
-        :class="{ active: isCurrentRoute('/student') }"
-      >
+      <router-link v-if="isStudent" to="/student" class="footer-link" :class="{ active: isCurrentRoute('/student') }">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <rect x="3" y="3" width="7" height="7"/>
-          <rect x="14" y="3" width="7" height="7"/>
-          <rect x="14" y="14" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
         </svg>
         <small>Student</small>
       </router-link>
 
-      <router-link 
-        v-if="isAdmin" 
-        to="/admin" 
-        class="footer-link" 
-        :class="{ active: isCurrentRoute('/admin') }"
-      >
+      <router-link v-if="isAdmin" to="/admin" class="footer-link" :class="{ active: isCurrentRoute('/admin') }">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="3"/>
+          <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 
                    1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 
                    1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 
@@ -61,7 +51,7 @@
                    0 0 0 1.82-.33l.06-.06a2 2 
                    0 1 1 2.83 2.83l-.06.06a1.65 
                    1.65 0 0 0-.33 1.82v.09c.36.68 
-                   1.05 1.14 1.82 1.14H21a2 2 0 0 1 0 4h-.09c-.77 0-1.46.46-1.51 1z"/>
+                   1.05 1.14 1.82 1.14H21a2 2 0 0 1 0 4h-.09c-.77 0-1.46.46-1.51 1z" />
         </svg>
         <small>Admin</small>
       </router-link>
@@ -112,13 +102,15 @@ export default {
 @media (max-width: 768px) {
   .mobile-footer {
     display: block;
+    margin-top: 100px;
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
     background: #fff;
-    box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
     z-index: 1100;
+
   }
 
   .footer-nav {
@@ -156,14 +148,13 @@ export default {
     color: white;
     padding: 14px;
     border-radius: 50%;
-    margin-top: -30px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   }
 
   .menu-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: flex-end;

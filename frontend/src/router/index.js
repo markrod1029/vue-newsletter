@@ -6,11 +6,15 @@ import Login from "../components/auth/Login.vue";
 import Register from "../components/auth/Register.vue";
 import Home from "../views/Home.vue";
 import Feed from "../views/Feed.vue";
+import FeedView from "../views/PostDetail.vue";
 import Search from "../views/search.vue";
 import Forums from "../views/Forums.vue";
 import ForumThread from "../views/ForumThread.vue";
 import Events from "../views/Events.vue";
+import EventView from "../views/EventDetails.vue";
 import AdminDashboard from "../components/admin/Dashboard.vue";
+import CreatePost from "../components/admin/CreatePost.vue";
+import CreateEvent from "../components/admin/CreateEvent.vue";
 import PendingStudents from "../components/admin/PendingStudents.vue";
 import PendingContent from "../components/admin/PendingContent.vue";
 import StudentDashboard from "../components/student/Dashboard.vue";
@@ -41,6 +45,14 @@ const routes = [
     component: Feed,
     meta: { requiresAuth: true },
   },
+
+  {
+    path: "/feed/view/:id",
+    name: "FeedView",
+    component: FeedView,
+    meta: { requiresAuth: true },
+  },
+
   {
     path: "/news-feed",
     name: "news-feed",
@@ -65,6 +77,13 @@ const routes = [
     component: Events,
     meta: { requiresAuth: true },
   },
+   {
+    path: "/event/view/:id",
+    name: "Event Details",
+    component: EventView,
+    meta: { requiresAuth: true },
+  },
+
 
   // {
   //   path: "/events/:id",
@@ -79,6 +98,25 @@ const routes = [
     component: AdminDashboard,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
+  {
+    path: "/admin/create-post",
+    name: "CreatePost",
+    component: CreatePost,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: "/admin/create-event",
+    name: "CreateEvent",
+    component: CreateEvent,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: "/admin/event/:id",
+    name: "EventEdit",
+    component: CreateEvent,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+
   {
     path: "/admin/students",
     name: "PendingStudents",

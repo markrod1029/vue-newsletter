@@ -11,7 +11,7 @@
       </main>
     </div>
 
-    <MobileFooter style="margin-top: 100px;" v-if="isAuthenticated" />
+    <MobileFooter  v-if="isAuthenticated" />
   </div>
 </template>
 <script>
@@ -35,3 +35,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.app-container {
+  margin-bottom: 60px;
+}
+</style>

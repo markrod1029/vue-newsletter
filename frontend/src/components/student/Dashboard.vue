@@ -12,7 +12,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       <div class="bg-white shadow rounded-lg p-4 text-center">
         <div class="text-3xl font-bold text-blue-600 mb-1">{{ stats.posts }}</div>
         <div class="text-gray-600 text-sm">Your Posts</div>
@@ -25,23 +25,21 @@
         <div class="text-3xl font-bold text-yellow-600 mb-1">{{ stats.pendingPosts }}</div>
         <div class="text-gray-600 text-sm">Pending Posts</div>
       </div>
-      <div class="bg-white shadow rounded-lg p-4 text-center">
-        <div class="text-3xl font-bold text-blue-600 mb-1">{{ stats.events }}</div>
-        <div class="text-gray-600 text-sm">Your Events</div>
-      </div>
     </div>
 
     <!-- Recent Posts -->
     <div class="mb-8">
       <h2 class="text-xl font-semibold mb-4">Your Recent Posts</h2>
+      
       <div v-if="posts.length === 0" class="text-center py-6">
         <p class="text-gray-500 mb-3">You haven't created any posts yet.</p>
         <button class="bg-blue-600 text-white px-4 py-2 rounded" @click="$router.push('/student/post/create')">
           Create Your First Post
         </button>
       </div>
+
       <div v-else class="space-y-4">
-        <div v-for="post in posts" :key="post.id"
+        <div v-for="post in paginatedPosts" :key="post.id"
           class="bg-white shadow rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <div class="mb-2 sm:mb-0">
             <h3 class="font-semibold text-lg">{{ post.title }}</h3>
@@ -49,35 +47,32 @@
           </div>
           <div class="flex items-center gap-2 mt-2 sm:mt-0">
             <span :class="`px-2 py-1 rounded text-sm ${getStatusColor(post.status)}`">{{ post.status }}</span>
-            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm" @click="editPost(post.id)">Edit</button>
-            <button class="bg-red-600 text-white px-3 py-1 rounded text-sm" @click="deletePost(post.id)">Delete</button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Recent Events -->
-    <div>
-      <h2 class="text-xl font-semibold mb-4">Your Recent Events</h2>
-      <div v-if="events.length === 0" class="text-center py-6">
-        <p class="text-gray-500 mb-3">You haven't created any events yet.</p>
-      </div>
-      <div v-else class="space-y-4">
-        <div v-for="event in events" :key="event.id"
-          class="bg-white shadow rounded-lg p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center">
-          <div class="mb-2 sm:mb-0">
-            <h3 class="font-semibold text-lg">{{ event.title }}</h3>
-            <div class="text-gray-500 text-sm">{{ formatDate(event.start_at) }}</div>
-          </div>
-          <div class="flex items-center gap-2 mt-2 sm:mt-0">
-            <span :class="`px-2 py-1 rounded text-sm ${getStatusColor(event.status)}`">{{ event.status }}</span>
-            <button class="btn btn-primary btn-sm" @click="editEvent(event.id)">
-              Edit
-            </button>
-            <button class="btn btn-danger btn-sm ml-2" @click="deleteEvent(event.id)">
-              Delete
-            </button>
-          </div>
+        <!-- Pagination Controls -->
+        <div class="flex justify-center items-center gap-2 mt-4">
+          <button 
+            :disabled="currentPage === 1"
+            class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            @click="currentPage--">
+            Prev
+          </button>
+
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            :class="['px-3 py-1 rounded', currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-200']"
+            @click="currentPage = page">
+            {{ page }}
+          </button>
+
+          <button 
+            :disabled="currentPage === totalPages"
+            class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+            @click="currentPage++">
+            Next
+          </button>
         </div>
       </div>
     </div>
@@ -93,48 +88,47 @@ export default {
   data() {
     return {
       posts: [],
-      events: [],
       stats: {
         posts: 0,
         approvedPosts: 0,
-        pendingPosts: 0,
-        events: 0
-      }
+        pendingPosts: 0
+      },
+      currentPage: 1,
+      postsPerPage: 5
     }
   },
   computed: {
     user() {
       const authStore = useAuthStore()
       return authStore.user || {}
+    },
+    paginatedPosts() {
+      const start = (this.currentPage - 1) * this.postsPerPage
+      const end = start + this.postsPerPage
+      return this.posts.slice(start, end)
+    },
+    totalPages() {
+      return Math.ceil(this.posts.length / this.postsPerPage)
     }
   },
   async mounted() {
     await this.fetchPosts()
-    await this.fetchEvents()
     this.calculateStats()
   },
   methods: {
     async fetchPosts() {
       try {
         const response = await apiClient.get('/api/posts?my_posts=true')
-        this.posts = response.data.data.slice(0, 5)
+        this.posts = response.data.data
+        this.currentPage = 1
       } catch (error) {
         console.error('Error fetching posts:', error)
-      }
-    },
-    async fetchEvents() {
-      try {
-        const response = await apiClient.get('/api/events?my_events=true')
-        this.events = response.data.data.slice(0, 5)
-      } catch (error) {
-        console.error('Error fetching events:', error)
       }
     },
     calculateStats() {
       this.stats.posts = this.posts.length
       this.stats.approvedPosts = this.posts.filter(p => p.status === 'approved').length
       this.stats.pendingPosts = this.posts.filter(p => p.status === 'pending').length
-      this.stats.events = this.events.length
     },
     getStatusColor(status) {
       const colors = {
@@ -162,21 +156,6 @@ export default {
       } catch (error) {
         console.error('Error deleting post:', error)
         alert('Failed to delete post')
-      }
-    },
-    editEvent(eventId) {
-      alert('Event editing feature coming soon')
-    },
-    async deleteEvent(eventId) {
-      if (!confirm('Are you sure you want to delete this event?')) return
-      try {
-        await apiClient.delete(`/api/events/${eventId}`)
-        this.events = this.events.filter(event => event.id !== eventId)
-        this.calculateStats()
-        alert('Event deleted successfully')
-      } catch (error) {
-        console.error('Error deleting event:', error)
-        alert('Failed to delete event')
       }
     }
   }
