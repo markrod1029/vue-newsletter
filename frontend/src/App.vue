@@ -5,13 +5,15 @@
     <div class="app-container">
       <main class="main-content">
         <router-view />
-        <div v-if="loading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div class="spinner-large"></div>
+        <div v-if="loading" class="text-center py-12">
+          <div class="spinner mx-auto"></div>
+          <p class="mt-4 text-gray-600">Loading App...</p>
         </div>
+
       </main>
     </div>
 
-    <MobileFooter  v-if="isAuthenticated" />
+    <MobileFooter v-if="isAuthenticated" />
   </div>
 </template>
 <script>
@@ -22,6 +24,11 @@ import { useLoadingStore } from './stores/loading'
 
 export default {
   name: 'App',
+  data() {
+    return {
+      loading: true,
+    }
+  },
   components: { Navbar, MobileFooter },
   computed: {
     isAuthenticated() {
@@ -29,8 +36,8 @@ export default {
       return authStore.isAuthenticated
     },
     loading() {
-      const loadingStore = useLoadingStore()
-      return loadingStore.isLoading
+      this.loading = true
+     
     }
   }
 }

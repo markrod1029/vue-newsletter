@@ -10,50 +10,88 @@
         <div v-if="errorMessage" class="alert alert-error">
           {{ errorMessage }}
         </div>
-        
+
         <div class="form-group">
           <label for="name" class="form-label">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            v-model="form.name"
-            required
-            class="form-input"
-            :class="{ 'form-input-error': errors.name }"
-            placeholder="Full Name"
-          />
+          <input type="text" id="name" v-model="form.name" required class="form-input"
+            :class="{ 'form-input-error': errors.name }" placeholder="Full Name" />
           <div v-if="errors.name" class="form-error">
             {{ errors.name[0] }}
           </div>
         </div>
 
         <div class="form-group">
+          <label for="name" class="form-label">Student No.</label>
+          <input type="text" id="name" v-model="form.studentNo" required class="form-input"
+            :class="{ 'form-input-error': errors.studentNo }" placeholder="Student No." />
+          <div v-if="errors.studentNo" class="form-error">
+            {{ errors.studentNo[0] }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="name" class="form-label">Contact No.</label>
+          <input type="text" id="name" v-model="form.contact" required class="form-input"
+            :class="{ 'form-input-error': errors.contact }" placeholder="Contact Number" />
+          <div v-if="errors.name" class="form-error">
+            {{ errors.contact[0] }}
+          </div>
+        </div>
+
+
+
+        <div class="form-group">
           <label for="email" class="form-label">Email address</label>
-          <input
-            type="email"
-            id="email"
-            v-model="form.email"
-            required
-            class="form-input"
-            :class="{ 'form-input-error': errors.email }"
-            placeholder="Email"
-          />
+          <input type="email" id="email" v-model="form.email" required class="form-input"
+            :class="{ 'form-input-error': errors.email }" placeholder="Email Address" />
           <div v-if="errors.email" class="form-error">
             {{ errors.email[0] }}
           </div>
         </div>
 
+
+        <div class="form-group">
+          <label for="name" class="form-label">House No.</label>
+          <input type="text" id="name" v-model="form.hno" required class="form-input"
+            :class="{ 'form-input-error': errors.hno }" placeholder="Full Name" />
+          <div v-if="errors.hno" class="form-error">
+            {{ errors.hno[0] }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="name" class="form-label">Sreet.</label>
+          <input type="text" id="name" v-model="form.hno" required class="form-input"
+            :class="{ 'form-input-error': errors.hno }" placeholder="Street" />
+          <div v-if="errors.hno" class="form-error">
+            {{ errors.hno[0] }}
+          </div>
+        </div>
+
+
+
+          <div class="form-group">
+          <label for="name" class="form-label">City.</label>
+          <input type="text" id="name" v-model="form.city" required class="form-input"
+            :class="{ 'form-input-error': errors.city }" placeholder="Ciry" />
+          <div v-if="errors.city" class="form-error">
+            {{ errors.city[0] }}
+          </div>
+        </div>
+
+          <div class="form-group">
+          <label for="name" class="form-label">Province.</label>
+          <input type="text" id="name" v-model="form.province" required class="form-input"
+            :class="{ 'form-input-error': errors.province }" placeholder="Province" />
+          <div v-if="errors.province" class="form-error">
+            {{ errors.province[0] }}
+          </div>
+        </div>
+
         <div class="form-group">
           <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            v-model="form.password"
-            required
-            class="form-input"
-            :class="{ 'form-input-error': errors.password }"
-            placeholder="Password"
-          />
+          <input type="password" id="password" v-model="form.password" required class="form-input"
+            :class="{ 'form-input-error': errors.password }" placeholder="Password" />
           <div v-if="errors.password" class="form-error">
             {{ errors.password[0] }}
           </div>
@@ -61,15 +99,9 @@
 
         <div class="form-group">
           <label for="password_confirmation" class="form-label">Confirm Password</label>
-          <input
-            type="password"
-            id="password_confirmation"
-            v-model="form.password_confirmation"
-            required
-            class="form-input"
-            :class="{ 'form-input-error': errors.password_confirmation }"
-            placeholder="Confirm Password"
-          />
+          <input type="password" id="password_confirmation" v-model="form.password_confirmation" required
+            class="form-input" :class="{ 'form-input-error': errors.password_confirmation }"
+            placeholder="Confirm Password" />
           <div v-if="errors.password_confirmation" class="form-error">
             {{ errors.password_confirmation[0] }}
           </div>
@@ -77,14 +109,8 @@
 
         <div class="form-group">
           <label for="grade_level" class="form-label">Grade Level (Optional)</label>
-          <input
-            type="text"
-            id="grade_level"
-            v-model="form.grade_level"
-            class="form-input"
-            :class="{ 'form-input-error': errors.grade_level }"
-            placeholder="e.g., Grade 11, College Freshman"
-          />
+          <input type="text" id="grade_level" v-model="form.grade_level" class="form-input"
+            :class="{ 'form-input-error': errors.grade_level }" placeholder="e.g., Grade 11, College Freshman" />
           <div v-if="errors.grade_level" class="form-error">
             {{ errors.grade_level[0] }}
           </div>
@@ -96,10 +122,10 @@
             <span v-else>Sign up</span>
           </button>
         </div>
-        
+
         <div class="text-center">
           <span class="text-sm text-gray-600">
-            Already have an account? 
+            Already have an account?
             <router-link to="/login" class="link">
               Sign in
             </router-link>
@@ -120,7 +146,7 @@ export default {
   setup() {
     const authStore = useAuthStore()
     const router = useRouter()
-    
+
     const form = ref({
       name: '',
       email: '',
@@ -128,18 +154,18 @@ export default {
       password_confirmation: '',
       grade_level: ''
     })
-    
+
     const loading = ref(false)
     const errorMessage = ref('')
     const errors = ref({})
-    
+
     const handleRegister = async () => {
       loading.value = true
       errorMessage.value = ''
       errors.value = {}
-      
+
       const result = await authStore.register(form.value)
-      
+
       if (result.success) {
         router.push('/login?message=Registration successful. Please wait for admin approval.')
       } else {
@@ -148,10 +174,10 @@ export default {
           errors.value = result.errors
         }
       }
-      
+
       loading.value = false
     }
-    
+
     return {
       form,
       loading,
@@ -216,7 +242,7 @@ export default {
   width: 100%;
 }
 
-.space-y-8 > * + * {
+.space-y-8>*+* {
   margin-top: 2rem;
 }
 
@@ -244,7 +270,7 @@ export default {
   margin-top: 2rem;
 }
 
-.space-y-6 > * + * {
+.space-y-6>*+* {
   margin-top: 1.5rem;
 }
 

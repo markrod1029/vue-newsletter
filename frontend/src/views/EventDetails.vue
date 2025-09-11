@@ -3,7 +3,7 @@
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-12">
       <div class="spinner mx-auto"></div>
-      <p class="mt-4 text-gray-600">Loading post...</p>
+      <p class="mt-4 text-gray-600">Loading event...</p>
     </div>
 
     <!-- Error State -->
@@ -13,109 +13,116 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Post Not Found</h2>
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Event Not Found</h2>
       <p class="text-gray-600 mb-4">{{ error }}</p>
-      <button @click="$router.push('/')" class="btn btn-primary">Go to Home</button>
+      <button @click="$router.push('/events')" class="btn btn-primary">Back to Events</button>
     </div>
 
-    <!-- Blog Article Content -->
-    <article v-else-if="post" class="bg-white">
-      <!-- Media Display - Image or Video -->
-      <div v-if="post.media_url" class="w-full mb-8">
+    <!-- Event Content -->
+    <article v-else-if="event" class="bg-white">
+      <!-- Event Image -->
+      <div v-if="event.image_url" class="w-full mb-8">
         <img 
-          v-if="isImage(post.media_url)" 
-          :src="getMediaUrl(post.media_url)" 
-          :alt="post.title" 
-          class="w-full h-64 md:h-96 object-cover"
+          :src="getMediaUrl(event.image_url)" 
+          :alt="event.title" 
+          class="w-full h-64 md:h-96 object-cover rounded-lg"
           @error="handleImageError"
         >
-        <video 
-          v-else-if="isVideo(post.media_url)"
-          :src="getMediaUrl(post.media_url)" 
-          class="w-full h-64 md:h-96 object-cover"
-          controls
-          preload="metadata"
-        >
-          Your browser does not support the video tag.
-        </video>
       </div>
 
-      <!-- Article Header -->
+      <!-- Event Header -->
       <header class="mb-8">
-        <!-- Category Badge -->
-        <div class="mb-4">
-          <span class="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wide">
-            {{ post.type }}
-          </span>
-        </div>
-
         <!-- Title -->
         <h1 class="text-2xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-          {{ post.title }}
+          {{ event.title }}
         </h1>
 
         <!-- Meta Information -->
         <div class="flex items-center text-gray-600 mb-6">
           <!-- Author Avatar -->
-          <div v-if="post.user?.avatar" class="mr-3">
+          <div v-if="event.user?.avatar" class="mr-3">
             <img 
-              :src="getMediaUrl(post.user.avatar)" 
-              :alt="post.user.name" 
+              :src="getMediaUrl(event.user.avatar)" 
+              :alt="event.user.name" 
               class="w-10 h-10 rounded-full object-cover"
             >
           </div>
           <div class="text-sm">
-            <span class="font-semibold text-gray-800">{{ post.user?.name }}</span>
+            <span class="font-semibold text-gray-800">{{ event.user?.name }}</span>
             <span class="mx-2">•</span>
-            <time :datetime="post.published_at">{{ formatDate(post.published_at) }}</time>
-            <span class="mx-2">•</span>
-            <span>{{ readingTime }} read</span>
+            <time :datetime="event.created_at">{{ formatDate(event.created_at) }}</time>
+          </div>
+        </div>
+
+        <!-- Event Details -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <div>
+              <h3 class="font-semibold text-gray-800">Location</h3>
+              <p class="text-gray-600">{{ event.location }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <div>
+              <h3 class="font-semibold text-gray-800">Start Date</h3>
+              <p class="text-gray-600">{{ formatDateTime(event.start_at) }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h3 class="font-semibold text-gray-800">End Date</h3>
+              <p class="text-gray-600">{{ formatDateTime(event.end_at) }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <h3 class="font-semibold text-gray-800">Status</h3>
+              <p class="text-gray-600 capitalize">{{ event.status }}</p>
+            </div>
           </div>
         </div>
       </header>
 
-      <!-- Article Content -->
-      <div class="prose prose-lg max-w-none">
-        <!-- Introduction (first paragraph emphasized) -->
-        <p class="text-xl text-gray-700 leading-relaxed mb-6 font-light">
-          {{ getFirstParagraph(post.body) }}
-        </p>
-
-        <!-- Main Content -->
+      <!-- Event Content -->
+      <div class="prose prose-lg max-w-none mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">About This Event</h2>
         <div class="text-gray-700 leading-8 whitespace-pre-line">
-          {{ getRemainingContent(post.body) }}
+          {{ event.description }}
         </div>
       </div>
 
-      <!-- Article Footer -->
+      <!-- Event Footer -->
       <footer class="mt-12 pt-8 border-t border-gray-100">
-        <!-- Tags/Categories -->
-        <div class="flex flex-wrap gap-2 mb-6">
-          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-            {{ post.type }}
-          </span>
-          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-            {{ formatDate(post.published_at, 'year') }}
-          </span>
-          <span v-if="post.media_type" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-            {{ post.media_type }}
-          </span>
-        </div>
-
         <!-- Author Bio -->
         <div class="bg-gray-50 rounded-lg p-6">
           <div class="flex items-center">
-            <div v-if="post.user?.avatar" class="mr-4">
+            <div v-if="event.user?.avatar" class="mr-4">
               <img 
-                :src="getMediaUrl(post.user.avatar)" 
-                :alt="post.user.name" 
+                :src="getMediaUrl(event.user.avatar)" 
+                :alt="event.user.name" 
                 class="w-16 h-16 rounded-full object-cover"
               >
             </div>
             <div>
-              <h4 class="font-semibold text-gray-900">Written by {{ post.user?.name }}</h4>
+              <h4 class="font-semibold text-gray-900">Organized by {{ event.user?.name }}</h4>
               <p class="text-gray-600 text-sm mt-1">
-                Published on {{ formatDate(post.published_at, 'full') }}
+                Created on {{ formatDate(event.created_at, 'full') }}
               </p>
             </div>
           </div>
@@ -123,45 +130,41 @@
       </footer>
     </article>
 
-    <!-- Related Posts Section -->
-    <section v-if="post && relatedPosts.length > 0" class="mt-16">
+    <!-- Related Events Section -->
+    <section v-if="event && relatedEvents.length > 0" class="mt-16">
       <div class="border-t border-gray-200 pt-12">
         <h2 class="text-2xl font-bold text-gray-900 mb-8">You might also like</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <article 
-            v-for="relatedPost in relatedPosts" 
-            :key="relatedPost.id" 
+            v-for="relatedEvent in relatedEvents" 
+            :key="relatedEvent.id" 
             class="group cursor-pointer"
-            @click="$router.push(`/posts/${relatedPost.id}`)"
+            @click="$router.push(`/events/${relatedEvent.id}`)"
           >
             <div class="bg-white rounded-lg overflow-hidden transition-transform group-hover:scale-105">
-              <!-- Related Post Media -->
-              <div v-if="relatedPost.media_url" class="w-full h-48 overflow-hidden">
+              <!-- Related Event Image -->
+              <div v-if="relatedEvent.image_url" class="w-full h-48 overflow-hidden">
                 <img 
-                  v-if="isImage(relatedPost.media_url)" 
-                  :src="getMediaUrl(relatedPost.media_url)" 
-                  :alt="relatedPost.title" 
+                  :src="getMediaUrl(relatedEvent.image_url)" 
+                  :alt="relatedEvent.title" 
                   class="w-full h-full object-cover transition-transform group-hover:scale-110"
-                />
-                <video 
-                  v-else-if="isVideo(relatedPost.media_url)"
-                  :src="getMediaUrl(relatedPost.media_url)" 
-                  class="w-full h-full object-cover transition-transform group-hover:scale-110"
-                  preload="metadata"
                 />
               </div>
               
-              <!-- Related Post Content -->
+              <!-- Related Event Content -->
               <div class="p-4">
                 <h3 class="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600">
-                  {{ relatedPost.title }}
+                  {{ relatedEvent.title }}
                 </h3>
                 <p class="text-gray-600 text-sm mb-3 line-clamp-3">
-                  {{ truncateText(relatedPost.body, 100) }}
+                  {{ truncateText(relatedEvent.description, 100) }}
                 </p>
                 <div class="flex items-center text-xs text-gray-500">
-                  <time :datetime="relatedPost.published_at">
-                    {{ formatDate(relatedPost.published_at, 'short') }}
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <time :datetime="relatedEvent.start_at">
+                    {{ formatDate(relatedEvent.start_at, 'short') }}
                   </time>
                 </div>
               </div>
@@ -178,11 +181,11 @@ import { useAuthStore } from '../stores/auth'
 import apiClient from '../api/http'
 
 export default {
-  name: 'PostDetail',
+  name: 'EventDetail',
   data() {
     return {
-      post: null,
-      relatedPosts: [],
+      event: null,
+      relatedEvents: [],
       loading: true,
       error: null,
       brokenImages: new Set()
@@ -193,72 +196,53 @@ export default {
       const authStore = useAuthStore()
       return authStore.user
     },
-    postId() {
+    eventId() {
       return this.$route.params.id
-    },
-    readingTime() {
-      if (!this.post?.body) return '2 min'
-      const words = this.post.body.split(' ').length
-      const minutes = Math.ceil(words / 200)
-      return `${minutes} min`
     }
   },
   async mounted() {
-    await this.fetchPost()
-    await this.fetchRelatedPosts()
+    await this.fetchEvent()
+    await this.fetchRelatedEvents()
   },
   methods: {
-    async fetchPost() {
+    async fetchEvent() {
       this.loading = true
       this.error = null
       
       try {
-        const response = await apiClient.get(`/api/events/${this.postId}`)
-        this.post = response.data.data
+        const response = await apiClient.get(`/api/events/${this.eventId}`)
+        this.event = response.data.data
       } catch (error) {
-        console.error('Error fetching post:', error)
+        console.error('Error fetching event:', error)
         if (error.response?.status === 404) {
-          this.error = 'The post you are looking for does not exist or has been removed.'
+          this.error = 'The event you are looking for does not exist or has been removed.'
         } else if (error.response?.status === 403) {
-          this.error = 'You do not have permission to view this post.'
+          this.error = 'You do not have permission to view this event.'
         } else {
-          this.error = 'Failed to load post. Please try again later.'
+          this.error = 'Failed to load event. Please try again later.'
         }
       } finally {
         this.loading = false
       }
     },
 
-    async fetchRelatedPosts() {
-      if (!this.post) return
+    async fetchRelatedEvents() {
+      if (!this.event) return
       
       try {
-        const response = await apiClient.get('/api/public-feed', {
+        const response = await apiClient.get('/api/events', {
           params: {
-            search: this.post.title.split(' ').slice(0, 3).join(' '),
+            search: this.event.title.split(' ').slice(0, 3).join(' '),
+            approved: true,
             limit: 3
           }
         })
-        this.relatedPosts = response.data.data
-          .filter(p => p.id !== this.post.id)
+        this.relatedEvents = response.data.data
+          .filter(e => e.id !== this.event.id)
           .slice(0, 3)
       } catch (error) {
-        console.error('Error fetching related posts:', error)
+        console.error('Error fetching related events:', error)
       }
-    },
-
-    isImage(url) {
-      if (!url) return false;
-      const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
-      const lowerUrl = url.toLowerCase();
-      return imageExtensions.some(ext => lowerUrl.includes(ext));
-    },
-    
-    isVideo(url) {
-      if (!url) return false;
-      const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.ogg'];
-      const lowerUrl = url.toLowerCase();
-      return videoExtensions.some(ext => lowerUrl.includes(ext));
     },
 
     getMediaUrl(mediaPath) {
@@ -280,18 +264,6 @@ export default {
       const imgSrc = event.target.src;
       this.brokenImages.add(imgSrc);
       event.target.style.display = 'none';
-    },
-
-    getFirstParagraph(content) {
-      if (!content) return '';
-      const paragraphs = content.split('\n').filter(p => p.trim().length > 0);
-      return paragraphs[0] || content.substring(0, 200) + '...';
-    },
-
-    getRemainingContent(content) {
-      if (!content) return '';
-      const paragraphs = content.split('\n').filter(p => p.trim().length > 0);
-      return paragraphs.length > 1 ? paragraphs.slice(1).join('\n\n') : '';
     },
 
     truncateText(text, length) {
@@ -320,6 +292,17 @@ export default {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
+      });
+    },
+
+    formatDateTime(dateString) {
+      if (!dateString) return ''
+      return new Date(dateString).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     }
   }
@@ -388,10 +371,6 @@ export default {
   font-size: 1.125rem;
 }
 
-.prose-lg p {
-  font-size: 1.125rem;
-}
-
 .group:hover .group-hover\:scale-105 {
   transform: scale(1.05);
 }
@@ -402,10 +381,5 @@ export default {
 
 .transition-transform {
   transition: transform 0.3s ease;
-}
-
-/* Video styling */
-video {
-  background-color: #000;
 }
 </style>

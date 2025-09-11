@@ -26,13 +26,13 @@
           v-if="isImage(post.media_url)" 
           :src="getMediaUrl(post.media_url)" 
           :alt="post.title" 
-          class="w-full h-64 md:h-96 object-cover rounded-lg"
+          class="w-full h-64 md:h-96 object-cover"
           @error="handleImageError"
         >
         <video 
           v-else-if="isVideo(post.media_url)"
           :src="getMediaUrl(post.media_url)" 
-          class="w-full h-64 md:h-96 object-cover rounded-lg"
+          class="w-full h-64 md:h-96 object-cover"
           controls
           preload="metadata"
         >
@@ -57,40 +57,51 @@
         <!-- Meta Information -->
         <div class="flex items-center text-gray-600 mb-6">
           <!-- Author Avatar -->
-          <div class="mr-3">
-            <div v-if="post.user?.avatar" class="w-10 h-10">
-              <img 
-                :src="getMediaUrl(post.user.avatar)" 
-                :alt="post.user.name" 
-                class="w-full h-full rounded-full object-cover"
-                @error="handleAvatarError"
-              >
-            </div>
-            <div v-else class="user-avatar">
-              {{ getUserInitials(post.user) }}
-            </div>
+          <div v-if="post.user?.avatar" class="mr-3">
+            <img 
+              :src="getMediaUrl(post.user.avatar)" 
+              :alt="post.user.name" 
+              class="w-10 h-10 rounded-full object-cover"
+            >
           </div>
           <div class="text-sm">
             <span class="font-semibold text-gray-800">{{ post.user?.name }}</span>
-            <span class="mx-2">•</span> <br>
+            <span class="mx-2">•</span>
             <time :datetime="post.published_at">{{ formatDate(post.published_at) }}</time>
-           
+            <span class="mx-2">•</span>
+            <span>{{ readingTime }} read</span>
           </div>
+        </div>
+
+        <div>
+            <div class="flex flex-wrap gap-2 mb-6">
+          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            {{ post.type }}
+          </span>
+          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            {{ formatDate(post.published_at, 'year') }}
+          </span>
+          <span v-if="post.media_type" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            {{ post.media_type }}
+          </span>
+        </div> 
+
         </div>
 
         <!-- Like and Comment Stats -->
         <div class="flex items-center gap-6 mt-4">
-          <button 
-            @click="toggleLike" 
-            class="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors"
-            :class="{ 'text-red-600': post.is_liked }"
-          >
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-            </svg>
-            <span>{{ post.likes_count }} likes</span>
-          </button>
-          
+          <div class="flex items-center gap-2">
+            <button 
+              @click="toggleLike" 
+              class="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors"
+              :class="{ 'text-red-600': post.is_liked }"
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+              <span>{{ post.likes_count }} likes</span>
+            </button>
+          </div>
           <div class="flex items-center gap-2 text-gray-600">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -120,29 +131,14 @@
         <!-- Add Comment Form -->
         <div v-if="currentUser" class="mb-8">
           <form @submit.prevent="addComment" class="bg-gray-50 rounded-lg p-4">
-            <div class="flex items-start gap-3 mb-3">
-              <div class="flex-shrink-0">
-                <div v-if="currentUser.avatar" class="w-8 h-8">
-                  <img 
-                    :src="getMediaUrl(currentUser.avatar)" 
-                    :alt="currentUser.name" 
-                    class="w-full h-full rounded-full object-cover"
-                    @error="handleAvatarError"
-                  >
-                </div>
-                <div v-else class="user-avatar-sm">
-                  {{ getUserInitials(currentUser) }}
-                </div>
-              </div>
-              <textarea
-                v-model="newComment"
-                placeholder="Write a comment..."
-                class="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                rows="3"
-                required
-              ></textarea>
-            </div>
-            <div class="flex justify-end">
+            <textarea
+              v-model="newComment"
+              placeholder="Write a comment..."
+              class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows="3"
+              required
+            ></textarea>
+            <div class="flex justify-end mt-3">
               <button 
                 type="submit" 
                 class="btn btn-primary"
@@ -166,31 +162,91 @@
             class="bg-white rounded-lg border border-gray-200 p-4"
           >
             <div class="flex items-start gap-3">
-              <!-- Commenter Avatar -->
-              <div class="flex-shrink-0">
-                <div v-if="comment.user?.avatar" class="w-8 h-8">
-                  <img 
-                    :src="getMediaUrl(comment.user.avatar)" 
-                    :alt="comment.user.name" 
-                    class="w-full h-full rounded-full object-cover"
-                    @error="handleAvatarError"
-                  >
-                </div>
-                <div v-else class="user-avatar-sm">
-                  {{ getUserInitials(comment.user) }}
-                </div>
-              </div>
-              
+              <img 
+                :src="getMediaUrl(comment.user.avatar)" 
+                :alt="comment.user.name" 
+                class="w-10 h-10 rounded-full object-cover"
+              >
               <div class="flex-1">
-                <div class="flex items-center gap-2 ">
-                  <h4 class="font-semibold text-gray-900">{{ comment.user?.name }}</h4>
+                <div class="flex items-center gap-2 mb-2">
+                  <h4 class="font-semibold text-gray-900">{{ comment.user.name }}</h4>
                   <span class="text-sm text-gray-500">{{ formatTimeAgo(comment.created_at) }}</span>
                 </div>
                 <p class="text-gray-700">{{ comment.content }}</p>
                 
-                <!-- Comment Actions -->
-                <div class=" flex items-center ">
-                 
+                <!-- Reply Section -->
+                <div class="mt-3 flex items-center gap-4">
+                  <button 
+                    @click="toggleReply(comment.id)" 
+                    class="text-sm text-blue-600 hover:underline"
+                  >
+                    Reply
+                  </button>
+                  
+                  <!-- Like Comment -->
+                  <button 
+                    @click="toggleCommentLike(comment.id)" 
+                    class="flex items-center gap-1 text-sm text-gray-600 hover:text-red-600"
+                    :class="{ 'text-red-600': comment.is_liked }"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>{{ comment.likes_count }}</span>
+                  </button>
+                </div>
+
+                <!-- Reply Form -->
+                <div v-if="showReplyForm === comment.id" class="mt-4 pl-6 border-l-2 border-gray-200">
+                  <form @submit.prevent="submitReply(comment.id)" class="space-y-3">
+                    <textarea
+                      v-model="replyContent"
+                      placeholder="Write a reply..."
+                      class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      rows="2"
+                      required
+                    ></textarea>
+                    <div class="flex gap-2">
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm"
+                        :disabled="replyLoading"
+                      >
+                        Post Reply
+                      </button>
+                      <button 
+                        type="button" 
+                        @click="showReplyForm = null" 
+                        class="btn btn-secondary btn-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Replies -->
+                <div v-if="comment.replies && comment.replies.length > 0" class="mt-4 space-y-4 pl-6 border-l-2 border-gray-200">
+                  <div 
+                    v-for="reply in comment.replies" 
+                    :key="reply.id" 
+                    class="pt-4"
+                  >
+                    <div class="flex items-start gap-3">
+                      <img 
+                        :src="getMediaUrl(reply.user.avatar)" 
+                        :alt="reply.user.name" 
+                        class="w-8 h-8 rounded-full object-cover"
+                      >
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                          <h5 class="font-semibold text-gray-900 text-sm">{{ reply.user.name }}</h5>
+                          <span class="text-xs text-gray-500">{{ formatTimeAgo(reply.created_at) }}</span>
+                        </div>
+                        <p class="text-gray-700 text-sm">{{ reply.content }}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -200,6 +256,41 @@
           <p>No comments yet. Be the first to comment!</p>
         </div>
       </section>
+
+      <!-- Article Footer -->
+      <footer class="mt-12 pt-8 border-t border-gray-100">
+        <!-- Tags/Categories -->
+        <!-- <div class="flex flex-wrap gap-2 mb-6">
+          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            {{ post.type }}
+          </span>
+          <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            {{ formatDate(post.published_at, 'year') }}
+          </span>
+          <span v-if="post.media_type" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+            {{ post.media_type }}
+          </span>
+        </div> -->
+
+        <!-- Author Bio -->
+        <!-- <div class="bg-gray-50 rounded-lg p-6">
+          <div class="flex items-center">
+            <div v-if="post.user?.avatar" class="mr-4">
+              <img 
+                :src="getMediaUrl(post.user.avatar)" 
+                :alt="post.user.name" 
+                class="w-16 h-16 rounded-full object-cover"
+              >
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-900">Written by {{ post.user?.name }}</h4>
+              <p class="text-gray-600 text-sm mt-1">
+                Published on {{ formatDate(post.published_at, 'full') }}
+              </p>
+            </div>
+          </div>
+        </div> -->
+      </footer>
     </article>
 
     <!-- Related Posts Section -->
@@ -265,10 +356,12 @@ export default {
       comments: [],
       loading: true,
       commentLoading: false,
+      replyLoading: false,
       error: null,
       newComment: '',
-      brokenImages: new Set(),
-      brokenAvatars: new Set()
+      replyContent: '',
+      showReplyForm: null,
+      brokenImages: new Set()
     }
   },
   computed: {
@@ -299,9 +392,6 @@ export default {
       try {
         const response = await apiClient.get(`/api/posts/${this.postId}`)
         this.post = response.data.data
-        // Ensure like status is properly set
-        this.post.is_liked = this.post.is_liked || false
-        this.post.likes_count = this.post.likes_count || 0
       } catch (error) {
         console.error('Error fetching post:', error)
         if (error.response?.status === 404) {
@@ -319,11 +409,7 @@ export default {
     async fetchComments() {
       try {
         const response = await apiClient.get(`/api/posts/${this.postId}/comments`)
-        this.comments = response.data.data.map(comment => ({
-          ...comment,
-          is_liked: comment.is_liked || false,
-          likes_count: comment.likes_count || 0
-        }))
+        this.comments = response.data.data
       } catch (error) {
         console.error('Error fetching comments:', error)
       }
@@ -356,11 +442,7 @@ export default {
           content: this.newComment
         })
         
-        this.comments.unshift({
-          ...response.data.data,
-          is_liked: false,
-          likes_count: 0
-        })
+        this.comments.unshift(response.data.data)
         this.newComment = ''
         this.post.comments_count++
       } catch (error) {
@@ -386,24 +468,53 @@ export default {
       }
     },
 
-    async toggleCommentLike(comment) {
+    async toggleCommentLike(commentId) {
       if (!this.currentUser) {
         alert('Please login to like comments')
         return
       }
       
       try {
-        const response = await apiClient.post(`/api/comments/${comment.id}/like`)
-        comment.is_liked = response.data.data.liked
-        comment.likes_count = response.data.data.likes_count
+        const response = await apiClient.post(`/api/comments/${commentId}/like`)
+        const comment = this.comments.find(c => c.id === commentId)
+        if (comment) {
+          comment.is_liked = response.data.data.liked
+          comment.likes_count = response.data.data.likes_count
+        }
       } catch (error) {
         console.error('Error toggling comment like:', error)
       }
     },
 
-    getUserInitials(user) {
-      if (!user?.name) return 'U'
-      return user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+    toggleReply(commentId) {
+      this.showReplyForm = this.showReplyForm === commentId ? null : commentId
+      this.replyContent = ''
+    },
+
+    async submitReply(commentId) {
+      if (!this.replyContent.trim()) return
+      
+      this.replyLoading = true
+      try {
+        const response = await apiClient.post(`/api/comments/${commentId}/reply`, {
+          content: this.replyContent
+        })
+        
+        const comment = this.comments.find(c => c.id === commentId)
+        if (comment) {
+          if (!comment.replies) comment.replies = []
+          comment.replies.push(response.data.data)
+        }
+        
+        this.showReplyForm = null
+        this.replyContent = ''
+        this.post.comments_count++
+      } catch (error) {
+        console.error('Error adding reply:', error)
+        alert('Failed to add reply')
+      } finally {
+        this.replyLoading = false
+      }
     },
 
     isImage(url) {
@@ -438,12 +549,6 @@ export default {
     handleImageError(event) {
       const imgSrc = event.target.src;
       this.brokenImages.add(imgSrc);
-      event.target.style.display = 'none';
-    },
-
-    handleAvatarError(event) {
-      const imgSrc = event.target.src;
-      this.brokenAvatars.add(imgSrc);
       event.target.style.display = 'none';
     },
 
@@ -507,30 +612,19 @@ export default {
 </script>
 
 <style scoped>
+
+
 .user-avatar {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background-color: #3b82f6;
+  background-color: #007bff;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
   font-size: 0.875rem;
-}
-
-.user-avatar-sm {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: #3b82f6;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.75rem;
 }
 
 .spinner {
@@ -570,6 +664,15 @@ export default {
   transform: translateY(-1px);
 }
 
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
 .btn-sm {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
@@ -599,6 +702,10 @@ export default {
   font-size: 1.125rem;
 }
 
+.prose-lg p {
+  font-size: 1.125rem;
+}
+
 .group:hover .group-hover\:scale-105 {
   transform: scale(1.05);
 }
@@ -614,6 +721,5 @@ export default {
 /* Video styling */
 video {
   background-color: #000;
-  border-radius: 0.5rem;
 }
 </style>
