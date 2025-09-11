@@ -52,10 +52,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Thread::class);
     }
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class);
-    }
 
     public function forums()
     {
@@ -64,5 +60,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function approvals()
     {
         return $this->hasMany(Approval::class, 'decided_by');
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
     }
 }

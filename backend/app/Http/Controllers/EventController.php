@@ -20,6 +20,7 @@ class EventController extends Controller
         }
 
 
+
         // Search
         if ($request->has('search')) {
             $query->where('title', 'like', '%' . $request->search . '%')
@@ -86,6 +87,7 @@ class EventController extends Controller
 
     public function show(Event $event)
     {
+        dd($event);
         // Only allow viewing approved events or events owned by the user
         if ($event->status !== 'approved' && $event->user_id !== auth()->id()) {
             if (!auth()->user()->hasRole('admin')) {

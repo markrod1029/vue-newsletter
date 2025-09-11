@@ -14,7 +14,13 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('studentID');
+            $table->string('contact');
             $table->string('email')->unique();
+            $table->string('hno');
+            $table->string('street');
+            $table->string('city');
+            $table->string('prov');
             $table->enum('status', ['pending', 'approved', 'rejected', 'archived'])->default('pending');
             $table->string('grade_level')->nullable();
             $table->string('avatar_url')->nullable();

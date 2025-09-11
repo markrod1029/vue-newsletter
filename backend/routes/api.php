@@ -8,23 +8,15 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
-
-Route::get('/test-json', function () {
-    return response()->json(['message' => 'Laravel is working!']);
-});
-
-
-// Route::get('/feed', [PostController::class, 'feed']); // temporary lang
-
 // Public routes
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/login', [LoginController::class, 'login']);
-
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
@@ -38,7 +30,6 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 // Public content routes
 Route::middleware('auth:sanctum')->get('/feed', [PostController::class, 'feed']);
-
 Route::get('/public-feed', [PostController::class, 'publicFeed']);
 Route::get('/events/upcoming', [EventController::class, 'upcoming']);
 Route::get('/forums-public', [ForumController::class, 'indexPublic']);
@@ -50,10 +41,16 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('roles');
     });
 
-
     // Posts
     Route::apiResource('posts', PostController::class);
     Route::post('posts/{post}/submit', [PostController::class, 'submit']);
+
+    // Post Comments
+    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::post('posts/{post}/comments', [CommentController::class, 'store']);
+
+    // Post Likes
+    Route::post('posts/{post}/like', [LikeController::class, 'togglePostLike']);
 
     // Events
     Route::apiResource('events', EventController::class);
@@ -66,6 +63,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Comments
     Route::apiResource('comments', CommentController::class);
+
+    // Comment Likes
+    Route::post('comments/{comment}/like', [LikeController::class, 'toggleCommentLike']);
+
+    // Comment Replies
+    Route::post('comments/{comment}/reply', [CommentController::class, 'storeReply']);
 
     // Admin routes
     Route::prefix('admin')->group(function () {
