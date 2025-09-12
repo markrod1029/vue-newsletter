@@ -1,17 +1,18 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\Auth\RegisterController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\LikeController;
-use App\Http\Controllers\AdminController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 // Public routes
@@ -41,6 +42,9 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('roles');
     });
 
+        // Route::get('/user', [UserController::class, 'show']);
+    Route::post('/user/profile', [UserController::class, 'updateProfile']);
+    Route::put('/users/{user}', [UserController::class, 'update']);
     // Posts
     Route::apiResource('posts', PostController::class);
     Route::post('posts/{post}/submit', [PostController::class, 'submit']);
