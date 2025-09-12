@@ -45,6 +45,9 @@
             Admin Panel
           </router-link>
           
+          <router-link to="/profile" class="dropdown-item" @click="isProfileMenuOpen = false">
+            Profile Information
+          </router-link>
           <router-link 
             v-if="isStudent" 
             to="/student" 

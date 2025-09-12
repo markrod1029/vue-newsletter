@@ -19,6 +19,7 @@ import PendingStudents from "../components/admin/PendingStudents.vue";
 import PendingContent from "../components/admin/PendingContent.vue";
 import StudentDashboard from "../components/student/Dashboard.vue";
 import PostCreate from "../components/student/PostCreate.vue";
+import Profile from "../views/Profile.vue";
 
 const routes = [
   {
@@ -77,13 +78,20 @@ const routes = [
     component: Events,
     meta: { requiresAuth: true },
   },
-   {
+
+  {
+    path: "/profile",
+    name: "Profile",
+    component: Profile,
+    meta: { requiresAuth: true },
+  },
+
+  {
     path: "/event/view/:id",
     name: "Event Details",
     component: EventView,
     meta: { requiresAuth: true },
   },
-
 
   // {
   //   path: "/events/:id",
