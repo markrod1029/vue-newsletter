@@ -11,6 +11,11 @@ class LikeController extends Controller
     public function togglePostLike(Post $post)
     {
         $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $liked = $post->likes()->where('user_id', $user->id)->exists();
 
         if ($liked) {
@@ -32,6 +37,11 @@ class LikeController extends Controller
     public function toggleCommentLike(Comment $comment)
     {
         $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
         $liked = $comment->likes()->where('user_id', $user->id)->exists();
 
         if ($liked) {

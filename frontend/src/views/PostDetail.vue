@@ -72,9 +72,10 @@
           </div>
           <div class="text-sm">
             <span class="font-semibold text-gray-800">{{ post.user?.name }}</span>
-            <span class="mx-2">•</span> <br>
+            <span class="mx-2">•</span>
             <time :datetime="post.published_at">{{ formatDate(post.published_at) }}</time>
-           
+            <span class="mx-2">•</span>
+            <span>{{ readingTime }}</span>
           </div>
         </div>
 
@@ -84,18 +85,25 @@
             @click="toggleLike" 
             class="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors"
             :class="{ 'text-red-600': post.is_liked }"
+            :disabled="likeLoading"
           >
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" :class="{ 'fill-current': post.is_liked }">
               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
             </svg>
-            <span>{{ post.likes_count }} likes</span>
+            <span>{{ post.likes_count }} {{ post.likes_count === 1 ? 'like' : 'likes' }}</span>
+            <span v-if="likeLoading" class="ml-1">
+              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </span>
           </button>
           
           <div class="flex items-center gap-2 text-gray-600">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
             </svg>
-            <span>{{ post.comments_count }} comments</span>
+            <span>{{ post.comments_count }} {{ post.comments_count === 1 ? 'comment' : 'comments' }}</span>
           </div>
         </div>
       </header>
@@ -140,15 +148,22 @@
                 class="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows="3"
                 required
+                :disabled="commentLoading"
               ></textarea>
             </div>
             <div class="flex justify-end">
               <button 
                 type="submit" 
                 class="btn btn-primary"
-                :disabled="commentLoading"
+                :disabled="commentLoading || !newComment.trim()"
               >
-                <span v-if="commentLoading">Posting...</span>
+                <span v-if="commentLoading" class="flex items-center">
+                  <svg class="w-4 h-4 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Posting...
+                </span>
                 <span v-else>Post Comment</span>
               </button>
             </div>
@@ -182,15 +197,25 @@
               </div>
               
               <div class="flex-1">
-                <div class="flex items-center gap-2 ">
+                <div class="flex items-center gap-2 mb-1">
                   <h4 class="font-semibold text-gray-900">{{ comment.user?.name }}</h4>
                   <span class="text-sm text-gray-500">{{ formatTimeAgo(comment.created_at) }}</span>
                 </div>
-                <p class="text-gray-700">{{ comment.content }}</p>
+                <p class="text-gray-700 mb-2">{{ comment.content }}</p>
                 
                 <!-- Comment Actions -->
-                <div class=" flex items-center ">
-                 
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                  <button 
+                    @click="toggleCommentLike(comment)"
+                    class="flex items-center gap-1 hover:text-red-600 transition-colors"
+                    :class="{ 'text-red-600': comment.is_liked }"
+                    :disabled="likeLoading"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" :class="{ 'fill-current': comment.is_liked }">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>{{ comment.likes_count }}</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -265,6 +290,7 @@ export default {
       comments: [],
       loading: true,
       commentLoading: false,
+      likeLoading: false,
       error: null,
       newComment: '',
       brokenImages: new Set(),
@@ -280,10 +306,10 @@ export default {
       return this.$route.params.id
     },
     readingTime() {
-      if (!this.post?.body) return '2 min'
+      if (!this.post?.body) return '2 min read'
       const words = this.post.body.split(' ').length
       const minutes = Math.ceil(words / 200)
-      return `${minutes} min`
+      return `${minutes} min read`
     }
   },
   async mounted() {
@@ -356,16 +382,22 @@ export default {
           content: this.newComment
         })
         
+        // Add the new comment to the beginning of the list
         this.comments.unshift({
           ...response.data.data,
           is_liked: false,
-          likes_count: 0
+          likes_count: 0,
+          user: this.currentUser
         })
-        this.newComment = ''
+        
+        // Update the comment count
         this.post.comments_count++
+        
+        // Clear the comment input
+        this.newComment = ''
       } catch (error) {
         console.error('Error adding comment:', error)
-        alert('Failed to add comment')
+        alert('Failed to add comment. Please try again.')
       } finally {
         this.commentLoading = false
       }
@@ -377,12 +409,16 @@ export default {
         return
       }
       
+      this.likeLoading = true
       try {
         const response = await apiClient.post(`/api/posts/${this.postId}/like`)
         this.post.is_liked = response.data.data.liked
         this.post.likes_count = response.data.data.likes_count
       } catch (error) {
         console.error('Error toggling like:', error)
+        alert('Failed to toggle like. Please try again.')
+      } finally {
+        this.likeLoading = false
       }
     },
 
@@ -392,12 +428,16 @@ export default {
         return
       }
       
+      this.likeLoading = true
       try {
         const response = await apiClient.post(`/api/comments/${comment.id}/like`)
         comment.is_liked = response.data.data.liked
         comment.likes_count = response.data.data.likes_count
       } catch (error) {
         console.error('Error toggling comment like:', error)
+        alert('Failed to toggle comment like. Please try again.')
+      } finally {
+        this.likeLoading = false
       }
     },
 
@@ -565,9 +605,14 @@ export default {
   color: white;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   background-color: #1d4ed8;
   transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-sm {
@@ -615,5 +660,9 @@ export default {
 video {
   background-color: #000;
   border-radius: 0.5rem;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 </style>

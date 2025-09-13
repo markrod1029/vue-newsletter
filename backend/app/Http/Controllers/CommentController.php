@@ -37,6 +37,9 @@ class CommentController extends Controller
             'content' => $request->content
         ]);
 
-        return response()->json(['data' => $comment->load('user')], 201);
+        // Load the user relationship for the response
+        $comment->load('user');
+
+        return response()->json(['data' => $comment], 201);
     }
 }
