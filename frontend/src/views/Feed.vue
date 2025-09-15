@@ -81,9 +81,6 @@
             </div>
             
             <div class="flex gap-2">
-              <button class="btn btn-primary btn-sm" @click="$router.push(`/feed/view/${post.id}`)">
-                Read More
-              </button>
               
               <button 
                 v-if="canEditPost(post)" 
