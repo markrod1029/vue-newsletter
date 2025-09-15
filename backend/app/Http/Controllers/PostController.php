@@ -131,20 +131,46 @@ class PostController extends Controller
 
 
 
-    public function show(Post $post)
-    {
-        // Allow viewing if:
-        // 1. Post is approved, OR
-        // 2. User owns the post, OR
-        // 3. User is admin
-        if ($post->status !== 'approved' && $post->user_id !== auth()->id()) {
-            if (!auth()->user()->hasRole('admin')) {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
+public function show(Post $post)
+{
+    // Allow viewing if:
+    // 1. Post is approved, OR
+    // 2. User owns the post, OR
+    // 3. User is admin
+    if ($post->status !== 'approved' && $post->user_id !== auth()->id()) {
+        if (!auth()->user() || !auth()->user()->hasRole('admin')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
-
-        return response()->json(['data' => $post->load('user')]);
     }
+
+    // load relationships
+    $post->load(['user', 'likes', 'comments']);
+
+    // determine if current user liked the post
+    $isLiked = auth()->check()
+        ? $post->likes->contains('user_id', auth()->id())
+        : false;
+
+    return response()->json([
+        'data' => [
+            'id'             => $post->id,
+            'title'          => $post->title,
+            'slug'           => $post->slug,
+            'body'           => $post->body,
+            'media_url'      => $post->media_url,
+            'media_type'     => $post->media_type,
+            'type'           => $post->type,
+            'status'         => $post->status,
+            'published_at'   => $post->published_at,
+            'user'           => $post->user,
+            'likes_count'    => $post->likes->count(),
+            'comments_count' => $post->comments->count(),
+            'is_liked'       => $isLiked,
+            'created_at'     => $post->created_at,
+            'updated_at'     => $post->updated_at,
+        ]
+    ]);
+}
 
     public function update(Request $request, Post $post)
     {

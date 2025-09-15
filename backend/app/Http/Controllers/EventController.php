@@ -69,7 +69,7 @@ class EventController extends Controller
             'location' => $request->location,
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
-            'status' => $request->status ?? 'pending'
+            'status' =>  'pending'
         ];
 
         // Handle image upload

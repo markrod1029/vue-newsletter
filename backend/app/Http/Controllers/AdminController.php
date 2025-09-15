@@ -29,10 +29,7 @@ class AdminController extends Controller
 
     public function dashboard(Request $request)
     {
-        // Check using policy
-        if (!$request->user()->can('accessAdminPanel')) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+
 
         $stats = [
             'pendingStudents' => User::where('status', 'pending')

@@ -49,12 +49,13 @@ class Post extends Model
         return $query->whereNotNull('published_at');
     }
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class)->whereNull('parent_id');
-    }
 
     public function allComments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+     public function comments()
     {
         return $this->hasMany(Comment::class);
     }
