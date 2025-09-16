@@ -2,7 +2,11 @@
   <div>
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">News & Articles</h1>
-      <button v-if="userHasPermission" class="btn btn-primary" @click="$router.push('/student/post/create')">
+      <button 
+        v-if="userHasPermission" 
+        class="btn btn-primary" 
+        @click="$router.push(getPostRoute('create'))"
+      >
         Create Post
       </button>
     </div>
@@ -51,18 +55,18 @@
         <div v-for="post in posts" :key="post.id" class="card hover:shadow-lg transition-shadow">
           <div class="card-body">
             <!-- Media Display - Image or Video -->
-            <div v-if="post.media_url" class="mb-4">
+            <div v-if="post.media_url" class="mb-4 media-wrapper">
               <img 
                 v-if="isImage(post.media_url)" 
                 :src="getMediaUrl(post.media_url)" 
                 :alt="post.title" 
-                class="w-full h-48 object-cover rounded"
+                class="media-item"
                 @error="handleImageError"
               >
               <video 
                 v-else-if="isVideo(post.media_url)"
                 :src="getMediaUrl(post.media_url)" 
-                class="w-full h-48 object-cover rounded"
+                class="media-item"
                 controls
               ></video>
             </div>
@@ -81,11 +85,12 @@
             </div>
             
             <div class="flex gap-2">
-              
+             
+
               <button 
                 v-if="canEditPost(post)" 
                 class="btn btn-secondary btn-sm" 
-                @click="$router.push(`/student/post/edit/${post.id}`)"
+                @click="$router.push(getPostRoute('edit', post.id))"
               >
                 Edit
               </button>
@@ -137,7 +142,7 @@ export default {
         per_page: 10,
         total: 0
       },
-      brokenImages: new Set() // Track images that fail to load
+      brokenImages: new Set()
     }
   },
   computed: {
@@ -180,6 +185,24 @@ export default {
         this.loading = false
       }
     },
+
+    // 🔑 Route builder based on role
+    getPostRoute(action, postId = null) {
+      if (!this.currentUser) return '/';
+
+      let base = '/';
+      if (this.currentUser.roles.some(role => role.name === 'admin')) {
+        base = '/admin/post';
+      } else if (this.currentUser.roles.some(role => role.name === 'student')) {
+        base = '/student/post';
+      }
+
+      if (action === 'create') return `${base}/create`;
+      if (action === 'edit' && postId) return `${base}/edit/${postId}`;
+      if (action === 'view' && postId) return `${base}/view/${postId}`;
+
+      return base;
+    },
     
     isImage(url) {
       if (!url) return false;
@@ -197,33 +220,23 @@ export default {
     
     getMediaUrl(mediaPath) {
       if (!mediaPath) return null;
-      
-      // If it's already a full URL, return as is
       if (mediaPath.startsWith('http://') || mediaPath.startsWith('https://')) {
         return mediaPath;
       }
-      
-      // If it's a storage path, prepend the base URL
       if (mediaPath.startsWith('/storage/')) {
         const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
         return `${baseUrl}${mediaPath}`;
       }
-      
-      // If it's just a filename, assume it's in storage
       if (!mediaPath.includes('/')) {
         const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
         return `${baseUrl}/storage/posts/${mediaPath}`;
       }
-      
       return mediaPath;
     },
     
     handleImageError(event) {
-      // Mark this image as broken to prevent repeated attempts
       const imgSrc = event.target.src;
       this.brokenImages.add(imgSrc);
-      
-      // Hide the broken image
       event.target.style.display = 'none';
     },
     
@@ -233,7 +246,6 @@ export default {
     
     async handleDeletePost(postId) {
       if (!confirm('Are you sure you want to delete this post?')) return
-      
       try {
         await apiClient.delete(`/api/posts/${postId}`)
         this.posts = this.posts.filter(post => post.id !== postId)
@@ -282,6 +294,21 @@ export default {
 </script>
 
 <style scoped>
+.media-wrapper {
+  width: 100%;
+  height: 16rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.media-item {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 0.5rem;
+}
+
 .pagination {
   display: flex;
   gap: 0.5rem;
@@ -303,10 +330,6 @@ export default {
   background-color: #007bff;
   color: white;
   border-color: #007bff;
-}
-
-.object-cover {
-  object-fit: cover;
 }
 
 .spinner {
@@ -332,30 +355,11 @@ export default {
   font-weight: 600;
 }
 
-.badge-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.badge-warning {
-  background-color: #ffc107;
-  color: #212529;
-}
-
-.badge-success {
-  background-color: #28a745;
-  color: white;
-}
-
-.badge-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.badge-dark {
-  background-color: #343a40;
-  color: white;
-}
+.badge-secondary { background-color: #6c757d; color: white; }
+.badge-warning { background-color: #ffc107; color: #212529; }
+.badge-success { background-color: #28a745; color: white; }
+.badge-danger { background-color: #dc3545; color: white; }
+.badge-dark { background-color: #343a40; color: white; }
 
 .btn {
   padding: 0.5rem 1rem;
@@ -366,32 +370,14 @@ export default {
   cursor: pointer;
 }
 
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
+.btn-primary { background-color: #007bff; color: white; }
+.btn-primary:hover { background-color: #0056b3; }
 
-.btn-primary:hover {
-  background-color: #0056b3;
-}
+.btn-secondary { background-color: #6c757d; color: white; }
+.btn-secondary:hover { background-color: #545b62; }
 
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #545b62;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #bd2130;
-}
+.btn-danger { background-color: #dc3545; color: white; }
+.btn-danger:hover { background-color: #bd2130; }
 
 .btn-sm {
   padding: 0.25rem 0.5rem;
@@ -411,7 +397,5 @@ export default {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.card-body {
-  padding: 1.5rem;
-}
+.card-body { padding: 1.5rem; }
 </style>

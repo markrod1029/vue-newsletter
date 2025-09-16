@@ -50,7 +50,7 @@
           </div>
 
           <!-- Media Upload Section -->
-          <div class="form-group w-full">
+          <div v-if="!isEditing" class="form-group w-full">
             <label class="form-label">Media Attachment</label>
             
             <!-- Media Preview -->
@@ -151,10 +151,11 @@
             >
               <i class="fas fa-paper-plane" v-if="!loading"></i>
               <i class="fas fa-spinner fa-spin" v-if="loading"></i>
-              <span>{{ loading ? 'Submitting...' : 'Submit for Approval' }}</span>
+              <span v-if="!isEditing">{{ loading ? 'Submitting...' : 'Submit for Approval' }}</span>
+              <span v-else>{{ loading ? 'Updating...' : 'Update' }}</span>
             </button>
 
-            <button
+            <button v-if="!isEditing"
               type="button"
               class="btn btn-secondary flex-1 flex items-center justify-center gap-2"
               :disabled="loading"

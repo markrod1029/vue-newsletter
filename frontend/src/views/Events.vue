@@ -22,12 +22,13 @@
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div v-for="event in events" :key="event.id" class="card hover:shadow-lg transition-shadow">
-          <!-- Event Image -->
-          <div v-if="event.image_url" class="w-full h-48 overflow-hidden">
+          
+          <!-- Uniform Event Image -->
+          <div v-if="event.image_url" class="media-wrapper">
             <img 
               :src="getMediaUrl(event.image_url)" 
               :alt="event.title" 
-              class="w-full h-full object-cover"
+              class="media-item"
               @error="handleImageError"
             />
           </div>
@@ -141,12 +142,10 @@ export default {
     getMediaUrl(mediaPath) {
       if (!mediaPath) return null;
       
-      // If it's already a full URL, return as is
       if (mediaPath.startsWith('http://') || mediaPath.startsWith('https://')) {
         return mediaPath;
       }
       
-      // If it's a storage path, prepend the base URL
       if (mediaPath.startsWith('/storage/')) {
         const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
         return `${baseUrl}${mediaPath}`;
@@ -267,7 +266,21 @@ export default {
   stroke-width: 2;
 }
 
-.object-cover {
+/* ✅ Uniform image size */
+.media-wrapper {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 ratio */
+  overflow: hidden;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.media-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 </style>

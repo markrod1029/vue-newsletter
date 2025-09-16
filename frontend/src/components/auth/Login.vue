@@ -67,13 +67,7 @@
           </div>
         </div>
         
-        <div class="form-options">
-          <label class="checkbox-container">
-            <input type="checkbox" id="remember-me" v-model="rememberMe" />
-            <span class="checkmark"></span>
-            Remember me
-          </label>
-        </div>
+      
         
         <button type="submit" class="btn btn-primary" :disabled="loading">
           <span v-if="loading" class="btn-loading">

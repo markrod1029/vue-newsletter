@@ -107,11 +107,18 @@ const routes = [
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
-    path: "/admin/create-post",
-    name: "CreatePost",
+    path: "/admin/post/create",
+    name: "AdminCreatePost",
     component: CreatePost,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
+    {
+    path: "/admin/post/edit/:id",
+    name: "AdminPostEdit",
+    component: CreatePost,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+
   {
     path: "/admin/create-event",
     name: "CreateEvent",

@@ -10,39 +10,23 @@
           <!-- Title -->
           <div class="form-group w-full">
             <label class="form-label">Title</label>
-            <input
-              type="text"
-              class="form-input w-full"
-              v-model="form.title"
-              required
-              :class="{ 'form-input-error': errors.title }"
-              placeholder="Post Title"
-            />
+            <input type="text" class="form-input w-full" v-model="form.title" required
+              :class="{ 'form-input-error': errors.title }" placeholder="Post Title" />
             <div v-if="errors.title" class="form-error">{{ errors.title[0] }}</div>
           </div>
 
           <!-- Content -->
           <div class="form-group w-full">
             <label class="form-label">Content</label>
-            <textarea
-              class="form-textarea w-full"
-              v-model="form.body"
-              rows="8"
-              required
-              :class="{ 'form-input-error': errors.body }"
-              placeholder="Write your post content here..."
-            ></textarea>
+            <textarea class="form-textarea w-full" v-model="form.body" rows="8" required
+              :class="{ 'form-input-error': errors.body }" placeholder="Write your post content here..."></textarea>
             <div v-if="errors.body" class="form-error">{{ errors.body[0] }}</div>
           </div>
 
           <!-- Type -->
           <div class="form-group w-full">
             <label class="form-label">Type</label>
-            <select
-              class="form-select w-full"
-              v-model="form.type"
-              :class="{ 'form-input-error': errors.type }"
-            >
+            <select class="form-select w-full" v-model="form.type" :class="{ 'form-input-error': errors.type }">
               <option value="news">News</option>
               <option value="article">Article</option>
             </select>
@@ -50,98 +34,89 @@
           </div>
 
           <!-- Media Upload Section -->
-          <div class="form-group w-full">
+          <div  v-if="!isEditing" class="form-group w-full">
             <label class="form-label">Media Attachment</label>
-            
-            <!-- Media Preview -->
-            <div v-if="mediaPreview" class="mb-4 relative">
-              <div v-if="mediaType === 'image'" class="relative">
-                <img :src="mediaPreview" class="w-full h-64 object-contain rounded-lg border border-gray-300" alt="Preview">
-                <button 
-                  type="button" 
-                  class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  @click="removeMedia"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
+
+            <!-- Show preview if editing and media exists -->
+            <div  class="mb-4">
+              <div v-if="mediaType === 'image'">
+                <img :src="mediaPreview" class="w-full h-64 object-contain rounded-lg border border-gray-300"
+                  alt="Preview">
               </div>
-              <div v-else-if="mediaType === 'video'" class="relative">
-                <video :src="mediaPreview" class="w-full h-64 object-contain rounded-lg border border-gray-300" controls></video>
-                <button 
-                  type="button" 
-                  class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  @click="removeMedia"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
+              <div v-else-if="mediaType === 'video'">
+                <video :src="mediaPreview" class="w-full h-64 object-contain rounded-lg border border-gray-300"
+                  controls></video>
               </div>
             </div>
-            
-            <!-- File Input -->
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center gap-2">
-                <input
-                  type="file"
-                  ref="fileInput"
-                  class="hidden"
-                  :accept="acceptTypes"
-                  @change="handleMediaUpload"
-                />
-                <button
-                  type="button"
-                  class="btn btn-outline flex items-center gap-2"
-                  @click="openFileInput"
-                >
-                  <i class="fas fa-upload"></i>
-                  {{ form.media ? 'Change Media' : 'Upload Media' }}
-                </button>
-                
-                <button
-                  v-if="form.media"
-                  type="button"
-                  class="btn btn-danger flex items-center gap-2"
-                  @click="removeMedia"
-                >
-                  <i class="fas fa-trash"></i>
-                  Remove
-                </button>
+
+            <!-- Upload inputs only if creating new post -->
+            <div >
+              <!-- Media Preview -->
+              <div v-if="mediaPreview" class="mb-4 relative">
+                <div v-if="mediaType === 'image'" class="relative">
+                  <img :src="mediaPreview" class="w-full h-64 object-contain rounded-lg border border-gray-300"
+                    alt="Preview">
+                  <button type="button"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    @click="removeMedia">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div v-else-if="mediaType === 'video'" class="relative">
+                  <video :src="mediaPreview" class="w-full h-64 object-contain rounded-lg border border-gray-300"
+                    controls></video>
+                  <button type="button"
+                    class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                    @click="removeMedia">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
               </div>
-              
-              <div class="flex gap-2">
-                <button 
-                  type="button" 
-                  class="btn-media-type" 
-                  :class="{'btn-media-type-active': mediaType === 'image'}"
-                  @click="setMediaType('image')"
-                >
-                  <i class="fas fa-image"></i> Image
-                </button>
-                <button 
-                  type="button" 
-                  class="btn-media-type" 
-                  :class="{'btn-media-type-active': mediaType === 'video'}"
-                  @click="setMediaType('video')"
-                >
-                  <i class="fas fa-video"></i> Video
-                </button>
+
+              <!-- File Input -->
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                  <input type="file" ref="fileInput" class="hidden" :accept="acceptTypes" @change="handleMediaUpload" />
+                  <button type="button" class="btn btn-outline flex items-center gap-2" @click="openFileInput">
+                    <i class="fas fa-upload"></i>
+                    {{ form.media ? 'Change Media' : 'Upload Media' }}
+                  </button>
+
+                  <button v-if="form.media" type="button" class="btn btn-danger flex items-center gap-2"
+                    @click="removeMedia">
+                    <i class="fas fa-trash"></i>
+                    Remove
+                  </button>
+                </div>
+
+                <div class="flex gap-2">
+                  <button type="button" class="btn-media-type" :class="{ 'btn-media-type-active': mediaType === 'image' }"
+                    @click="setMediaType('image')">
+                    <i class="fas fa-image"></i> Image
+                  </button>
+                  <button type="button" class="btn-media-type" :class="{ 'btn-media-type-active': mediaType === 'video' }"
+                    @click="setMediaType('video')">
+                    <i class="fas fa-video"></i> Video
+                  </button>
+                </div>
               </div>
-            </div>
-            
-            <div class="text-sm text-gray-500 mt-1">
-              <span v-if="mediaType === 'image'">
-                Supported formats: JPEG, PNG, JPG, GIF. Max size: 5MB
-              </span>
-              <span v-else>
-                Supported formats: MP4, MOV, AVI. Max size: 20MB
-              </span>
-            </div>
-            
-            <div v-if="errors.media" class="form-error">
-              {{ errors.media[0] }}
+
+              <div class="text-sm text-gray-500 mt-1">
+                <span v-if="mediaType === 'image'">
+                  Supported formats: JPEG, PNG, JPG, GIF. Max size: 5MB
+                </span>
+                <span v-else>
+                  Supported formats: MP4, MOV, AVI. Max size: 20MB
+                </span>
+              </div>
+
+              <div v-if="errors.media" class="form-error">
+                {{ errors.media[0] }}
+              </div>
             </div>
           </div>
 
-          <!-- Buttons -->
+           <!-- Buttons -->
           <div class="flex flex-col sm:flex-row gap-2 mt-4 w-full">
             <button
               type="submit"
@@ -151,10 +126,11 @@
             >
               <i class="fas fa-paper-plane" v-if="!loading"></i>
               <i class="fas fa-spinner fa-spin" v-if="loading"></i>
-              <span>{{ loading ? 'Submitting...' : 'Submit for Approval' }}</span>
+              <span v-if="!isEditing">{{ loading ? 'Submitting...' : 'Submit for Approval' }}</span>
+              <span v-else>{{ loading ? 'Updating...' : 'Update' }}</span>
             </button>
 
-            <button
+            <button v-if="!isEditing"
               type="button"
               class="btn btn-secondary flex-1 flex items-center justify-center gap-2"
               :disabled="loading"
@@ -204,30 +180,30 @@ export default {
   },
   computed: {
     acceptTypes() {
-      return this.mediaType === 'image' 
-        ? 'image/*' 
+      return this.mediaType === 'image'
+        ? 'image/*'
         : 'video/*';
     }
   },
   async mounted() {
     // Check if we're in edit mode by looking for the id parameter
-    if (this.$route.name === 'PostEdit' && this.$route.params.id) {
+    if (this.$route.name === 'AdminPostEdit' && this.$route.params.id) {
       this.isEditing = true
       this.postId = this.$route.params.id
       await this.fetchPost()
-    }
+    } 
   },
   methods: {
     async fetchPost() {
       try {
         const response = await apiClient.get(`/api/posts/${this.postId}`)
-        this.form = { 
+        this.form = {
           title: response.data.data.title,
           body: response.data.data.body,
           type: response.data.data.type,
           status: response.data.data.status
         }
-        
+
         // Set media preview if exists
         if (response.data.data.media_url) {
           this.mediaPreview = response.data.data.media_url;
@@ -249,23 +225,23 @@ export default {
         }
       }
     },
-    
+
     setMediaType(type) {
       this.mediaType = type;
       this.removeMedia();
     },
-    
+
     openFileInput() {
       this.$refs.fileInput.click();
     },
-    
+
     handleMediaUpload(event) {
       const file = event.target.files[0];
-      
+
       if (file) {
         // Validate file type and size based on media type
         let validTypes, maxSize, errorMessage;
-        
+
         if (this.mediaType === 'image') {
           validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
           maxSize = 5 * 1024 * 1024; // 5MB
@@ -275,21 +251,21 @@ export default {
           maxSize = 20 * 1024 * 1024; // 20MB
           errorMessage = 'Please select a valid video file (MP4, MOV, AVI)';
         }
-        
+
         if (!validTypes.includes(file.type)) {
           alert(errorMessage);
           this.$refs.fileInput.value = '';
           return;
         }
-        
+
         if (file.size > maxSize) {
-          alert(`File size must be less than ${maxSize/(1024*1024)}MB`);
+          alert(`File size must be less than ${maxSize / (1024 * 1024)}MB`);
           this.$refs.fileInput.value = '';
           return;
         }
-        
+
         this.form.media = file;
-        
+
         // Create preview
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -298,34 +274,34 @@ export default {
         reader.readAsDataURL(file);
       }
     },
-    
+
     removeMedia() {
       this.form.media = null;
       this.mediaPreview = null;
       this.$refs.fileInput.value = '';
     },
-    
+
     cancel() {
       this.$router.push('/admin');
     },
-    
+
     async submitForm() {
       this.loading = true
       this.errors = {}
-      
+
       try {
         const formData = new FormData();
         formData.append('title', this.form.title);
         formData.append('body', this.form.body);
         formData.append('type', this.form.type);
         formData.append('status', this.saveAsDraft ? 'draft' : 'pending');
-        
+
         // Append media if selected
         if (this.form.media) {
           formData.append('media', this.form.media);
           formData.append('media_type', this.mediaType);
         }
-        
+
         let response;
         if (this.isEditing) {
           response = await apiClient.put(`/api/posts/${this.postId}`, formData, {
@@ -340,11 +316,11 @@ export default {
             }
           });
         }
-        
+
         alert(
-          this.saveAsDraft 
-            ? 'Post saved as draft successfully' 
-            : 'Post submitted for approval successfully'
+          this.saveAsDraft
+            ? 'Post saved as draft successfully'
+            : 'Post submitted successfully'
         );
         this.$router.push('/admin');
       } catch (error) {

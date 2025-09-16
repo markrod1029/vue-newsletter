@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-// Create axios instance with custom config
+// ✅ kunin yung baseURL mula sa .env ng Vite
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
   headers: {
     'Accept': 'application/json',
@@ -14,39 +14,22 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token')
-    console.log('🌐 API Request:', config.url)
-    console.log('🔑 Token exists:', !!token)
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-      console.log('✅ Token added to headers:', config.headers.Authorization)
-    } else {
-      console.log('❌ No token found in localStorage')
     }
-    
     return config
   },
-  (error) => {
-    console.error('❌ Request error:', error)
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
-// Response interceptor to handle errors
+// Response interceptor
 apiClient.interceptors.response.use(
-  (response) => {
-    console.log('✅ API Response success:', response.config.url)
-    return response
-  },
+  (response) => response,
   (error) => {
-    console.error('❌ API Response error:', error.response?.status, error.response?.data)
-    
     if (error.response?.status === 401) {
-      console.log('🛑 401 Unauthorized - Clearing auth data')
       localStorage.removeItem('auth_token')
       localStorage.removeItem('auth_user')
       localStorage.removeItem('auth_authenticated')
-      
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }

@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- Welcome Section -->
-    <div class="card mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-4">Welcome to Campus Newsletter</h1>
+    <div class="card mb-6 px-auto pl-2 my-5 gap-6 mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 mb-4 ">Welcome to Campus Newsletter</h1>
       <p class="text-gray-600">Stay updated with the latest campus news, events, and discussions.</p>
     </div>
 
