@@ -15,33 +15,62 @@ class RegisterController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
+            'studentNo' => 'required|string|max:255|unique:users,studentID',
+            'contact' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
+            'hno' => 'required|string|max:255',
+            'street' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
             'password' => 'required|string|min:8|confirmed',
-            'grade_level' => 'nullable|string',
+            'grade_level' => 'nullable|string|max:255',
+        ], [
+            'studentNo.unique' => 'This student number is already registered.',
+            'email.unique' => 'This email address is already registered.',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'grade_level' => $request->grade_level,
-            'status' => User::STATUS_PENDING, // kailangan pa rin ng admin approval
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'studentID' => $request->studentNo,
+                'contact' => $request->contact,
+                'email' => $request->email,
+                'hno' => $request->hno,
+                'street' => $request->street,
+                'city' => $request->city,
+                'prov' => $request->province, // Note: database uses 'prov', request uses 'province'
+                'grade_level' => $request->grade_level,
+                'password' => Hash::make($request->password),
+                'status' => User::STATUS_PENDING,
+            ]);
 
-        // Assign student role
-        $studentRole = Role::findOrCreate('student');
-        $user->assignRole($studentRole);
+            // Assign student role
+            $studentRole = Role::findOrCreate('student');
+            $user->assignRole($studentRole);
 
-        // Send email verification link
-        // $user->sendEmailVerificationNotification();
+            // Send email verification link (uncomment if needed)
+            // $user->sendEmailVerificationNotification();
 
-        return response()->json([
-            'message' => 'User registered successfully. Please check your email to verify your account. Waiting for admin approval.',
-            'user' => $user
-        ], 201);
+            return response()->json([
+                'success' => true,
+                'message' => 'Registration successful. Please wait for admin approval.',
+                'user' => $user
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed. Please try again.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
