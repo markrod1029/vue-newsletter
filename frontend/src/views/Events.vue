@@ -88,6 +88,7 @@
 <script>
 import { useAuthStore } from '../stores/auth'
 import apiClient from '../api/http'
+import { getMediaUrl } from '../utils/media'
 
 export default {
   name: 'Events',
@@ -115,6 +116,7 @@ export default {
     await this.fetchEvents()
   },
   methods: {
+    getMediaUrl,
     async fetchEvents(page = 1) {
       this.loading = true
       try {
@@ -139,20 +141,7 @@ export default {
       }
     },
     
-    getMediaUrl(mediaPath) {
-      if (!mediaPath) return null;
-      
-      if (mediaPath.startsWith('http://') || mediaPath.startsWith('https://')) {
-        return mediaPath;
-      }
-      
-      if (mediaPath.startsWith('/storage/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}${mediaPath}`;
-      }
-      
-      return mediaPath;
-    },
+  
     
     handleImageError(event) {
       const imgSrc = event.target.src;

@@ -25,7 +25,15 @@
           class="user-button"
         >
           <div class="user-avatar">
-            {{ userInitials }}
+            <img 
+              v-if="avatarUrl" 
+              :src="avatarUrl" 
+              alt="User Avatar" 
+              class="avatar-img"
+            />
+            <span v-else>
+              {{ userInitials }}
+            </span>
           </div>
         </button>
 
@@ -48,6 +56,7 @@
           <router-link to="/profile" class="dropdown-item" @click="isProfileMenuOpen = false">
             Profile Information
           </router-link>
+          
           <router-link 
             v-if="isStudent" 
             to="/student" 
@@ -73,6 +82,7 @@
 import { useAuthStore } from '../../stores/auth'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { getMediaUrl } from '../../utils/media'
 
 export default {
   name: 'Navbar',
@@ -81,31 +91,32 @@ export default {
     const router = useRouter()
     const isProfileMenuOpen = ref(false)
 
-    const navigation = computed(() => {
-      return [
-        { name: 'Home', to: '/' },
-        { name: 'News', to: '/feed' },
-        { name: 'Events', to: '/events' },
-      ]
-    })
+    const navigation = computed(() => [
+      { name: 'Home', to: '/' },
+      { name: 'News', to: '/feed' },
+      { name: 'Events', to: '/events' },
+    ])
 
     const user = computed(() => authStore.user || {})
+
     const userInitials = computed(() => {
       if (!user.value.name) return 'U'
-      return user.value.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+      return user.value.name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2)
     })
 
-    const userRole = computed(() => {
-      return user.value.roles?.[0]?.name || 'user'
+
+    const avatarUrl = computed(() => {
+      return getMediaUrl(user.value.avatar)
     })
 
-    const isAdmin = computed(() => {
-      return user.value.roles?.some(role => role.name === 'admin')
-    })
-
-    const isStudent = computed(() => {
-      return user.value.roles?.some(role => role.name === 'student')
-    })
+    const userRole = computed(() => user.value.roles?.[0]?.name || 'user')
+    const isAdmin = computed(() => user.value.roles?.some(role => role.name === 'admin'))
+    const isStudent = computed(() => user.value.roles?.some(role => role.name === 'student'))
 
     const isCurrentRoute = (route) => {
       return router.currentRoute.value.path === route
@@ -121,6 +132,7 @@ export default {
       navigation,
       user,
       userInitials,
+      avatarUrl,
       userRole,
       isAdmin,
       isStudent,
@@ -131,6 +143,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .navbar {
@@ -211,6 +224,13 @@ export default {
   justify-content: center;
   font-weight: bold;
   font-size: 0.875rem;
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .user-dropdown {
@@ -268,7 +288,5 @@ export default {
   .navbar-nav {
     display: none;
   }
-  
-
 }
 </style>

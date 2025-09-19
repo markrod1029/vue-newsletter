@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // ✅ kunin yung baseURL mula sa .env ng Vite
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: 'http://localhost:8000',
   withCredentials: true,
   headers: {
     'Accept': 'application/json',

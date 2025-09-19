@@ -199,6 +199,7 @@
 <script>
 import { useAuthStore } from '../stores/auth'
 import apiClient from '../api/http'
+import { getMediaUrl } from '../utils/media'
 
 export default {
   name: 'EventDetail',
@@ -227,6 +228,7 @@ export default {
     }
   },
   methods: {
+    getMediaUrl,
     async fetchEvent() {
       this.loading = true
       this.error = null
@@ -287,26 +289,6 @@ export default {
         .catch(err => {
           console.error('Navigation error:', err)
         })
-    },
-
-    getMediaUrl(mediaPath) {
-      if (!mediaPath) return '';
-      
-      if (mediaPath.startsWith('http://') || mediaPath.startsWith('https://') || mediaPath.startsWith('data:')) {
-        return mediaPath;
-      }
-      
-      if (mediaPath.startsWith('/storage/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}${mediaPath}`;
-      }
-      
-      if (mediaPath.startsWith('storage/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}/${mediaPath}`;
-      }
-      
-      return mediaPath;
     },
 
     handleImageError(event) {

@@ -52,13 +52,8 @@
           <!-- Author Avatar - FIXED: Now consistent with navbar -->
           <div class="mr-3">
             <div class="user-avatar">
-              <img 
-                v-if="post.user?.avatar" 
-                :src="getMediaUrl(post.user.avatar)" 
-                :alt="post.user.name"
-                class="avatar-img"
-                @error="(e) => handleAvatarError(e, post.user)"
-              />
+              <img v-if="post.user?.avatar" :src="getMediaUrl(post.user.avatar)" :alt="post.user.name"
+                class="avatar-img" @error="(e) => handleAvatarError(e, post.user)" />
               <span v-else>
                 {{ getUserInitials(post.user) }}
               </span>
@@ -66,10 +61,9 @@
           </div>
           <div class="text-sm">
             <span class="font-semibold text-gray-800">{{ post.user?.name }}</span>
-            <span class="mx-2">•</span>
+            <br><span class="mx-2">• </span>
             <time :datetime="post.published_at">{{ formatDate(post.published_at) }}</time>
-            <span class="mx-2">•</span>
-            <span>{{ readingTime }}</span>
+
           </div>
         </div>
 
@@ -126,13 +120,8 @@
               <div class="flex-shrink-0">
                 <!-- Current User Avatar - FIXED: Now consistent with navbar -->
                 <div class="user-avatar-sm">
-                  <img 
-                    v-if="currentUser.avatar" 
-                    :src="getMediaUrl(currentUser.avatar)" 
-                    :alt="currentUser.name"
-                    class="avatar-img"
-                    @error="(e) => handleAvatarError(e, currentUser)"
-                  />
+                  <img v-if="currentUser.avatar" :src="getMediaUrl(currentUser.avatar)" :alt="currentUser.name"
+                    class="avatar-img" @error="(e) => handleAvatarError(e, currentUser)" />
                   <span v-else>
                     {{ getUserInitials(currentUser) }}
                   </span>
@@ -167,19 +156,14 @@
         </div>
 
         <!-- Comments List -->
-        <div v-if="comments.length > 0" class="space-y-4">
+        <div v-if="comments.length > 0" >
           <div v-for="comment in comments" :key="comment.id" class="bg-white rounded-lg border border-gray-200 p-4">
             <div class="flex items-start gap-3">
               <!-- Commenter Avatar - FIXED: Now consistent with navbar -->
               <div class="flex-shrink-0">
                 <div class="user-avatar-sm">
-                  <img 
-                    v-if="comment.user?.avatar" 
-                    :src="getMediaUrl(comment.user.avatar)" 
-                    :alt="comment.user.name"
-                    class="avatar-img"
-                    @error="(e) => handleAvatarError(e, comment.user)"
-                  />
+                  <img v-if="comment.user?.avatar" :src="getMediaUrl(comment.user.avatar)" :alt="comment.user.name"
+                    class="avatar-img" @error="(e) => handleAvatarError(e, comment.user)" />
                   <span v-else>
                     {{ getUserInitials(comment.user) }}
                   </span>
@@ -191,20 +175,22 @@
                   <h4 class="font-semibold text-gray-900 truncate">{{ comment.user?.name }}</h4>
                   <span class="text-sm text-gray-500 whitespace-nowrap">{{ formatTimeAgo(comment.created_at) }}</span>
                 </div>
-                <p class="text-gray-700  break-words">{{ comment.content }}</p>
 
-                <!-- Comment Actions -->
-                <div class="flex items-center gap-4 text-sm text-gray-500">
-                  <button @click="toggleCommentLike(comment)"
-                    class="flex items-center gap-1 hover:text-red-600 transition-colors"
-                    :class="{ 'text-red-600': comment.is_liked }" :disabled="likeLoading">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"
-                      :class="{ 'fill-current': comment.is_liked }">
-                      <path
-                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                    </svg>
-                    <span>{{ comment.likes_count }}</span>
-                  </button>
+                <div class="flex items-center gap-2">
+                  <p class="text-gray-700  break-words">{{ comment.content }}</p>
+                  <!-- Comment Actions -->
+                  <div class="flex items-center gap-4 text-sm text-gray-500 comment-like">
+                    <button @click="toggleCommentLike(comment)"
+                      class="flex items-center gap-1 hover:text-red-600 transition-colors"
+                      :class="{ 'text-red-600': comment.is_liked }" :disabled="likeLoading">
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"
+                        :class="{ 'fill-current': comment.is_liked }">
+                        <path
+                          d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                      </svg>
+                      <span>{{ comment.likes_count }}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -250,13 +236,9 @@
             </div>
             <div class="flex items-center mt-2">
               <div class="user-avatar-sm mr-2">
-                <img 
-                  v-if="relatedPost.user?.avatar" 
-                  :src="getMediaUrl(relatedPost.user.avatar)" 
-                  :alt="relatedPost.user.name"
-                  class="avatar-img"
-                  @error="(e) => handleAvatarError(e, relatedPost.user)"
-                />
+                <img v-if="relatedPost.user?.avatar" :src="getMediaUrl(relatedPost.user.avatar)"
+                  :alt="relatedPost.user.name" class="avatar-img"
+                  @error="(e) => handleAvatarError(e, relatedPost.user)" />
                 <span v-else>
                   {{ getUserInitials(relatedPost.user) }}
                 </span>
@@ -273,6 +255,7 @@
 <script>
 import { useAuthStore } from '../stores/auth'
 import apiClient from '../api/http'
+import { getMediaUrl } from '../utils/media'
 
 export default {
   name: 'PostDetail',
@@ -311,6 +294,7 @@ export default {
     await this.fetchComments()
   },
   methods: {
+    getMediaUrl,
     async fetchPost() {
       this.loading = true
       this.error = null
@@ -493,47 +477,7 @@ export default {
       return videoExtensions.some(ext => lowerUrl.includes(ext));
     },
 
-    // FIXED: Enhanced getMediaUrl function to handle avatar paths correctly
-    getMediaUrl(mediaPath) {
-      if (!mediaPath) return ''
-      
-      console.log('Processing media path:', mediaPath); // Debug log
-
-      // If it's already a full URL, return it
-      if (
-        mediaPath.startsWith('http://') ||
-        mediaPath.startsWith('https://') ||
-        mediaPath.startsWith('data:')
-      ) {
-        return mediaPath
-      }
-
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-      
-      // Handle avatar paths (avatars/filename.jpg)
-      if (mediaPath.includes('avatars')) {
-        // Remove any backslashes that might be in the path
-        const cleanPath = mediaPath.replace(/\\/g, '/')
-        // If it starts with 'avatars/', prepend with /storage/
-        if (cleanPath.startsWith('avatars/')) {
-          return `${baseUrl}/storage/${cleanPath}`
-        }
-        // If it's just the filename, assume it's in the avatars directory
-        if (!cleanPath.includes('/')) {
-          return `${baseUrl}/storage/avatars/${cleanPath}`
-        }
-      }
-      
-      // Handle storage paths
-      if (mediaPath.startsWith('storage/') || mediaPath.startsWith('/storage/')) {
-        const cleanPath = mediaPath.replace(/^\/?storage\//, '')
-        return `${baseUrl}/storage/${cleanPath}`
-      }
-
-      // For any other paths, assume they're in the storage directory
-      return `${baseUrl}/storage/${mediaPath}`
-    },
-
+  
     handleImageError(event) {
       const imgSrc = event.target.src;
       this.brokenImages.add(imgSrc);
@@ -746,13 +690,15 @@ video {
 .space-y-4>*+* {
   margin-top: 1rem;
 }
-  
+
 /* Ensure text doesn't overflow */
 .min-w-0 {
   min-width: 0;
 }
 
-.break-words {
+.break-words,
+.comment-like {
   word-break: break-word;
+
 }
 </style>

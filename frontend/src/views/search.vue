@@ -73,6 +73,9 @@
 
 <script>
 import axios from 'axios'
+import apiClient from '../api/http'
+
+import { getMediaUrl } from '../utils/media'
 
 export default {
   name: 'PublicFeed',
@@ -94,6 +97,7 @@ export default {
     await this.fetchPosts()
   },
   methods: {
+    getMediaUrl,
     async fetchPosts(page = 1) {
       this.loading = true
       try {
@@ -104,7 +108,7 @@ export default {
           params.append('search', this.searchQuery)
         }
 
-        const response = await axios.get(`/api/public-feed?${params.toString()}`)
+        const response = await apiClient.get(`/api/public-feed?${params.toString()}`)
         this.posts = response.data.data
         this.pagination = {
           current_page: response.data.meta.current_page,
@@ -131,29 +135,6 @@ export default {
       const videoExtensions = ['.mp4', '.mov', '.avi', '.webm', '.ogg'];
       const lowerUrl = url.toLowerCase();
       return videoExtensions.some(ext => lowerUrl.includes(ext));
-    },
-
-    getMediaUrl(mediaPath) {
-      if (!mediaPath) return null;
-
-      // If it's already a full URL, return as is
-      if (mediaPath.startsWith('http://') || mediaPath.startsWith('https://')) {
-        return mediaPath;
-      }
-
-      // If it's a storage path, prepend the base URL
-      if (mediaPath.startsWith('/storage/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}${mediaPath}`;
-      }
-
-      // If it's just a filename, assume it's in storage
-      if (!mediaPath.includes('/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}/storage/posts/${mediaPath}`;
-      }
-
-      return mediaPath;
     },
 
     handleImageError(event) {

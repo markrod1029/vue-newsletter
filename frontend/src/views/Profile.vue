@@ -126,6 +126,7 @@
 <script>
 import apiClient from '../api/http'
 import { ref, onMounted, computed } from 'vue'
+import { getMediaUrl } from '../utils/media'
 
 export default {
     name: 'Profile',
@@ -287,29 +288,7 @@ export default {
             }
         }
 
-        const getMediaUrl = (mediaPath) => {
-            if (!mediaPath) return ''
-
-            // If it's already a full URL or data URL, return as is
-            if (mediaPath.startsWith('http://') ||
-                mediaPath.startsWith('https://') ||
-                mediaPath.startsWith('data:')) {
-                return mediaPath
-            }
-
-            // If it's a storage path, prepend the base URL
-            if (mediaPath.startsWith('storage/') || mediaPath.startsWith('/storage/')) {
-                const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-                // Remove any leading slash to avoid double slashes
-                const cleanPath = mediaPath.replace(/^\//, '')
-                return `${baseUrl}/${cleanPath}`
-            }
-
-            // If it's a relative path, assume it's from storage
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
-            return `${baseUrl}/storage/${mediaPath}`
-        }
-
+     
         const userInitials = computed(() => {
             if (!form.value.name) return 'US'
             return form.value.name

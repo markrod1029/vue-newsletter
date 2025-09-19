@@ -104,10 +104,10 @@
 
     <!-- Content Detail Modal -->
     <div v-if="showDetailModal" class="modal-overlay">
-      <div class="modal" style="max-width: 800px;">
+      <div class="modal" style="max-width: 700px;">
         <div class="modal-header">
           <h3 class="modal-title">{{ selectedContent.title }}</h3>
-          <button class="modal-close" @click="showDetailModal = false">×</button>
+          <button class="modal-close" @click="showDetailModal = false"></button>
         </div>
         <div class="modal-body">
           <!-- Media Display for Posts in Modal -->
@@ -159,15 +159,7 @@
             <p>Created at: {{ formatDate(selectedContent.created_at) }}</p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-success"
-            @click="approveContent(selectedContent.type ? 'posts' : 'events', selectedContent.id)">
-            Approve
-          </button>
-          <button class="btn btn-danger"
-            @click="rejectContent(selectedContent.type ? 'posts' : 'events', selectedContent.id)">
-            Reject
-          </button>
+        <div class="modal-footer mb-5">
           <button class="btn btn-secondary" @click="showDetailModal = false">Close</button>
         </div>
       </div>
@@ -177,6 +169,7 @@
 
 <script>
 import apiClient from '../../api/http'
+import { getMediaUrl } from '../../utils/media'
 
 export default {
   name: 'PendingContent',
@@ -206,6 +199,7 @@ export default {
     await this.fetchPendingContent()
   },
   methods: {
+    getMediaUrl,
     async fetchPendingContent() {
       this.loading = true
       try {
@@ -233,28 +227,7 @@ export default {
       return videoExtensions.some(ext => lowerUrl.includes(ext));
     },
     
-    getMediaUrl(mediaPath) {
-      if (!mediaPath) return null;
-      
-      // If it's already a full URL, return as is
-      if (mediaPath.startsWith('http://') || mediaPath.startsWith('https://')) {
-        return mediaPath;
-      }
-      
-      // If it's a storage path, prepend the base URL
-      if (mediaPath.startsWith('/storage/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}${mediaPath}`;
-      }
-      
-      // If it's just a filename, assume it's in storage
-      if (!mediaPath.includes('/')) {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
-        return `${baseUrl}/storage/${mediaPath}`;
-      }
-      
-      return mediaPath;
-    },
+
     
     handleImageError(event) {
       // Mark this image as broken to prevent repeated attempts
